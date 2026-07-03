@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -55,26 +54,30 @@ def rounded_gradient(size: int, box: tuple[int, int, int, int], radius: int) -> 
 
 
 def draw_sharp_question_mark(draw: ImageDraw.ImageDraw, size: int) -> None:
-    """Bold geometric ? — scales cleanly and stays sharp when downscaled."""
+    """Bold geometric ? — fills most of the canvas."""
     s = float(size)
-    stroke = max(2.0, s * 0.115)
+    stroke = max(2.5, s * 0.135)
     cx = s * 0.5
 
-    # C-shaped hook
-    hook_pad_x = s * 0.13
-    hook_pad_y = s * 0.11
+    hook_pad_x = s * 0.10
+    hook_pad_y = s * 0.08
     hook_box = (
         hook_pad_x,
         hook_pad_y,
         s - hook_pad_x,
-        s * 0.56,
+        s * 0.60,
     )
-    draw.arc(hook_box, start=118, end=342, fill=WHITE, width=int(round(stroke)))
+    draw.arc(
+        hook_box,
+        start=108,
+        end=348,
+        fill=WHITE,
+        width=max(2, int(round(stroke))),
+    )
 
-    # Stem
-    stem_w = stroke * 0.92
-    stem_top = s * 0.50
-    stem_bottom = s * 0.66
+    stem_w = stroke
+    stem_top = s * 0.46
+    stem_bottom = s * 0.64
     draw.rounded_rectangle(
         (
             cx - stem_w / 2,
@@ -86,9 +89,8 @@ def draw_sharp_question_mark(draw: ImageDraw.ImageDraw, size: int) -> None:
         fill=WHITE,
     )
 
-    # Dot
-    dot_r = stroke * 0.78
-    dot_cy = s * 0.805
+    dot_r = stroke * 0.95
+    dot_cy = s * 0.795
     draw.ellipse(
         (
             cx - dot_r,
@@ -101,13 +103,12 @@ def draw_sharp_question_mark(draw: ImageDraw.ImageDraw, size: int) -> None:
 
 
 def draw_background(size: int, *, flat: bool = False) -> Image.Image:
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-
-    if flat and size <= 16:
+    if flat and size <= 64:
+        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
-        radius = 3
+        radius = max(3, size // 5)
         draw.rounded_rectangle((0, 0, size - 1, size - 1), radius=radius, fill=TEAL_MID)
-        draw.line([(2, 2), (size - 3, 2)], fill=TEAL_LIGHT, width=1)
+        draw.line([(2, 2), (size - 3, 2)], fill=TEAL_LIGHT, width=max(1, size // 16))
         return img
 
     inset = max(1, size // 20)
@@ -148,7 +149,7 @@ def make_master() -> Image.Image:
 
 def export_icon(master: Image.Image, size: int) -> Image.Image:
     if size == 16:
-        return make_icon(16, flat=True)
+        return make_icon(64, flat=True).resize((16, 16), Image.Resampling.NEAREST)
     return master.resize((size, size), Image.Resampling.LANCZOS)
 
 
