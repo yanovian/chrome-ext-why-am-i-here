@@ -1,13 +1,22 @@
-import { startActiveFocus, stopActiveFocus, tickActiveFocus } from '../utils/active-time';
+import {
+  startActiveFocus,
+  stopActiveFocus,
+  startDistraction,
+  stopDistraction,
+  tickActiveFocus,
+  tickDistraction,
+} from '../utils/active-time';
 import { isTabRelatedToIntent } from '../utils/intent-matcher';
 import {
   appendSessionHistory,
   applyCheckInResponse,
   buildPendingCheckIn,
-  shouldSurfaceCheckIn,
+  shouldSurfaceDistractionNudge,
+  shouldSurfaceRabbitHoleNudge,
   snoozeSession,
 } from '../utils/session-manager';
 import {
+  getUnrelatedTabIds,
   isTrackableUrl,
   refreshSessionFromOpenTabs,
 } from '../utils/tab-tracker';
@@ -52,12 +61,12 @@ async function clearTickAlarm(): Promise<void> {
   await browser.alarms.clear(ALARM_NAMES.tick);
 }
 
-async function updateBadge(pending: boolean, relatedCount?: number): Promise<void> {
+async function updateBadge(pending: boolean, label?: string): Promise<void> {
   if (pending) {
     await browser.action.setBadgeText({ text: '!' });
     await browser.action.setBadgeBackgroundColor({ color: '#0D9488' });
     await browser.action.setTitle({
-      title: `Why Am I Here? — Check-in ready${relatedCount ? ` (${relatedCount} related tabs)` : ''}`,
+      title: label ?? 'Why Am I Here? — Nudge ready',
     });
     return;
   }
@@ -72,7 +81,7 @@ async function refreshSessionTabMatches(
   return refreshSessionFromOpenTabs(session);
 }
 
-async function evaluateCheckIn(session: IntentSession): Promise<void> {
+async function evaluateNudges(session: IntentSession): Promise<void> {
   const settings = await getSettings();
   const pending = await getPendingCheckIn();
   if (pending) {
@@ -82,43 +91,63 @@ async function evaluateCheckIn(session: IntentSession): Promise<void> {
   const updatedSession = await refreshSessionTabMatches(session);
   await saveActiveSession(updatedSession);
 
-  const totalTabCount = updatedSession.trackedTabIds.length;
-  const relatedTabCount = updatedSession.seenRelatedTabIds.length;
+  const unrelatedOpen = getUnrelatedTabIds(updatedSession).length;
+  const relatedOpen = updatedSession.relatedTabIds.length;
+  const relatedSeen = updatedSession.seenRelatedTabIds.length;
 
   if (
-    !shouldSurfaceCheckIn({
+    shouldSurfaceDistractionNudge({
       session: updatedSession,
       settings,
-      totalTabCount,
-      relatedTabCount,
+      unrelatedOpenCount: unrelatedOpen,
+      relatedOpenCount: relatedOpen,
     })
   ) {
+    const checkIn = buildPendingCheckIn(
+      updatedSession,
+      'distraction',
+      unrelatedOpen,
+      updatedSession.trackedTabIds.length,
+      relatedOpen,
+    );
+    await savePendingCheckIn(checkIn);
+    await updateBadge(true, 'Why Am I Here? — Refocus nudge');
     return;
   }
 
-  const checkIn = buildPendingCheckIn(
-    updatedSession,
-    totalTabCount,
-    relatedTabCount,
-  );
-  await savePendingCheckIn(checkIn);
-  await updateBadge(true, relatedTabCount);
+  if (
+    shouldSurfaceRabbitHoleNudge({
+      session: updatedSession,
+      settings,
+      totalTabCount: updatedSession.trackedTabIds.length,
+      relatedTabCount: relatedSeen,
+    })
+  ) {
+    const checkIn = buildPendingCheckIn(
+      updatedSession,
+      'rabbit-hole',
+      unrelatedOpen,
+      updatedSession.trackedTabIds.length,
+      relatedSeen,
+    );
+    await savePendingCheckIn(checkIn);
+    await updateBadge(true, 'Why Am I Here? — Rabbit-hole check-in');
+  }
 }
 
 async function syncFocusForTab(
   session: IntentSession,
   tab: { active?: boolean; id?: number; title?: string; url?: string } | undefined,
 ): Promise<IntentSession> {
-  const isRelated =
-    !!tab?.id &&
-    isTrackableUrl(tab.url) &&
-    tabMatchesIntent(tab, session.keywords);
-
-  if (isRelated) {
-    return startActiveFocus(session);
+  if (!tab?.id || !isTrackableUrl(tab.url)) {
+    return stopDistraction(stopActiveFocus(session));
   }
 
-  return stopActiveFocus(session);
+  if (tabMatchesIntent(tab, session.keywords)) {
+    return startActiveFocus(stopDistraction(session));
+  }
+
+  return startDistraction(stopActiveFocus(session));
 }
 
 async function syncFocusFromActiveTab(
@@ -145,7 +174,7 @@ async function updateSession(
   await saveActiveSession(next);
 
   if (options.evaluate) {
-    await evaluateCheckIn(next);
+    await evaluateNudges(next);
   }
 }
 
@@ -168,11 +197,19 @@ async function syncStoredSession(): Promise<void> {
 
   const pendingBefore = await getPendingCheckIn();
   if (!pendingBefore) {
-    await evaluateCheckIn(next);
+    await evaluateNudges(next);
   }
 
   const pending = await getPendingCheckIn();
-  await updateBadge(!!pending, pending?.relatedTabCount);
+  if (pending) {
+    const label =
+      pending.type === 'distraction'
+        ? 'Why Am I Here? — Refocus nudge'
+        : 'Why Am I Here? — Rabbit-hole check-in';
+    await updateBadge(true, label);
+  } else {
+    await updateBadge(false);
+  }
 }
 
 function sessionsEqual(a: IntentSession, b: IntentSession): boolean {
@@ -183,9 +220,13 @@ function sessionsEqual(a: IntentSession, b: IntentSession): boolean {
     a.activeFocusMs === b.activeFocusMs &&
     a.focusStartedAt === b.focusStartedAt &&
     a.checkInAfterActiveMs === b.checkInAfterActiveMs &&
+    a.distractionMs === b.distractionMs &&
+    a.distractionStartedAt === b.distractionStartedAt &&
+    a.nudgeAfterDistractionMs === b.nudgeAfterDistractionMs &&
     arraysEqual(a.trackedTabIds, b.trackedTabIds) &&
     arraysEqual(a.relatedTabIds, b.relatedTabIds) &&
-    arraysEqual(a.seenRelatedTabIds, b.seenRelatedTabIds)
+    arraysEqual(a.seenRelatedTabIds, b.seenRelatedTabIds) &&
+    arraysEqual(a.seenUnrelatedTabIds, b.seenUnrelatedTabIds)
   );
 }
 
@@ -194,6 +235,7 @@ function arraysEqual(a: number[], b: number[]): boolean {
 }
 
 async function respondToCheckIn(response: CheckInResponse): Promise<void> {
+  const pending = await getPendingCheckIn();
   const session = await getActiveSession();
   if (!session) {
     await savePendingCheckIn(null);
@@ -202,10 +244,14 @@ async function respondToCheckIn(response: CheckInResponse): Promise<void> {
   }
 
   const settings = await getSettings();
-  let nextSession = stopActiveFocus(applyCheckInResponse(session, response));
+  let nextSession = applyCheckInResponse(session, response);
 
   if (response === 'continue') {
-    nextSession = snoozeSession(nextSession, settings);
+    nextSession = snoozeSession(
+      nextSession,
+      settings,
+      pending?.type ?? 'rabbit-hole',
+    );
     await saveActiveSession(nextSession);
     await savePendingCheckIn(null);
     await updateBadge(false);
@@ -228,7 +274,11 @@ export default defineBackground(() => {
 
     const pending = await getPendingCheckIn();
     if (pending) {
-      await updateBadge(true, pending.relatedTabCount);
+      const label =
+        pending.type === 'distraction'
+          ? 'Why Am I Here? — Refocus nudge'
+          : 'Why Am I Here? — Rabbit-hole check-in';
+      await updateBadge(true, label);
     }
   });
 
@@ -272,6 +322,9 @@ export default defineBackground(() => {
           if (next.focusStartedAt !== null) {
             next = tickActiveFocus(next);
           }
+          if (next.distractionStartedAt !== null) {
+            next = tickDistraction(next);
+          }
           return next;
         },
         { evaluate: true },
@@ -283,17 +336,19 @@ export default defineBackground(() => {
     enqueueSessionTask(async () => {
       await updateSession(async (session) => {
         const tab = await browser.tabs.get(activeInfo.tabId);
-        let next = stopActiveFocus(session);
+        let next = stopDistraction(stopActiveFocus(session));
         next = await refreshSessionTabMatches(next);
         return syncFocusForTab(next, tab);
-      });
+      }, { evaluate: true });
     });
   });
 
   browser.windows.onFocusChanged.addListener((windowId) => {
     enqueueSessionTask(async () => {
       if (windowId === browser.windows.WINDOW_ID_NONE) {
-        await updateSession(async (session) => stopActiveFocus(session));
+        await updateSession(async (session) =>
+          stopDistraction(stopActiveFocus(session)),
+        );
         return;
       }
 
@@ -302,21 +357,25 @@ export default defineBackground(() => {
           active: true,
           windowId,
         });
-        let next = stopActiveFocus(session);
+        let next = stopDistraction(stopActiveFocus(session));
         return syncFocusForTab(next, activeTab);
-      });
+      }, { evaluate: true });
     });
   });
 
   browser.tabs.onCreated.addListener(() => {
     enqueueSessionTask(async () => {
-      await updateSession(async (session) => refreshSessionTabMatches(session));
+      await updateSession(async (session) => refreshSessionTabMatches(session), {
+        evaluate: true,
+      });
     });
   });
 
   browser.tabs.onRemoved.addListener(() => {
     enqueueSessionTask(async () => {
-      await updateSession(async (session) => refreshSessionTabMatches(session));
+      await updateSession(async (session) => refreshSessionTabMatches(session), {
+        evaluate: true,
+      });
     });
   });
 

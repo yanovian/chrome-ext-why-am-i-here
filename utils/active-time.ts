@@ -16,7 +16,7 @@ export function tickActiveFocus(
   };
 }
 
-/** Stop counting focus time. */
+/** Stop counting on-goal focus time. */
 export function stopActiveFocus(
   session: IntentSession,
   now = Date.now(),
@@ -32,7 +32,7 @@ export function stopActiveFocus(
   };
 }
 
-/** Start counting focus time on a related tab. */
+/** Start counting on-goal focus time. */
 export function startActiveFocus(
   session: IntentSession,
   now = Date.now(),
@@ -47,12 +47,62 @@ export function startActiveFocus(
   };
 }
 
-export function getActiveMinutes(session: IntentSession, now = Date.now()): number {
-  const totalMs =
-    session.activeFocusMs +
-    (session.focusStartedAt === null ? 0 : now - session.focusStartedAt);
+/** Add elapsed distraction time since distractionStartedAt. */
+export function tickDistraction(
+  session: IntentSession,
+  now = Date.now(),
+): IntentSession {
+  if (session.distractionStartedAt === null) {
+    return session;
+  }
 
-  return Math.floor(totalMs / 60_000);
+  return {
+    ...session,
+    distractionMs: session.distractionMs + (now - session.distractionStartedAt),
+    distractionStartedAt: now,
+  };
+}
+
+/** Stop counting off-goal distraction time. */
+export function stopDistraction(
+  session: IntentSession,
+  now = Date.now(),
+): IntentSession {
+  if (session.distractionStartedAt === null) {
+    return session;
+  }
+
+  return {
+    ...session,
+    distractionMs: session.distractionMs + (now - session.distractionStartedAt),
+    distractionStartedAt: null,
+  };
+}
+
+/** Start counting off-goal distraction time. */
+export function startDistraction(
+  session: IntentSession,
+  now = Date.now(),
+): IntentSession {
+  if (session.distractionStartedAt !== null) {
+    return tickDistraction(session, now);
+  }
+
+  return {
+    ...session,
+    distractionStartedAt: now,
+  };
+}
+
+export function getActiveMinutes(session: IntentSession, now = Date.now()): number {
+  return Math.floor(getActiveFocusMs(session, now) / 60_000);
+}
+
+export function getDistractionMinutes(
+  session: IntentSession,
+  now = Date.now(),
+): number {
+  return Math.floor(getDistractionMs(session, now) / 60_000);
 }
 
 export function getActiveFocusMs(session: IntentSession, now = Date.now()): number {
@@ -62,17 +112,20 @@ export function getActiveFocusMs(session: IntentSession, now = Date.now()): numb
   );
 }
 
-export function isCheckInDue(session: IntentSession, now = Date.now()): boolean {
+export function getDistractionMs(session: IntentSession, now = Date.now()): number {
+  return (
+    session.distractionMs +
+    (session.distractionStartedAt === null ? 0 : now - session.distractionStartedAt)
+  );
+}
+
+export function isRabbitHoleDue(session: IntentSession, now = Date.now()): boolean {
   return getActiveFocusMs(session, now) >= session.checkInAfterActiveMs;
 }
 
-export function formatActiveDuration(session: IntentSession, now = Date.now()): string {
-  const minutes = getActiveMinutes(session, now);
-  if (minutes <= 0) {
-    return 'Under 1 min active';
-  }
-  if (minutes === 1) {
-    return '1 min active';
-  }
-  return `${minutes} min active`;
+export function isDistractionNudgeDue(
+  session: IntentSession,
+  now = Date.now(),
+): boolean {
+  return getDistractionMs(session, now) >= session.nudgeAfterDistractionMs;
 }

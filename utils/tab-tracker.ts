@@ -23,6 +23,16 @@ export function isTrackableUrl(url: string | undefined): url is string {
   return !INTERNAL_URL_PREFIXES.some((prefix) => url.startsWith(prefix));
 }
 
+function tabMatchesIntent(
+  tab: TabSnapshotInput,
+  keywords: string[],
+): boolean {
+  return isTabRelatedToIntent(
+    { title: tab.title ?? '', url: tab.url ?? '' },
+    keywords,
+  );
+}
+
 /** Update session tab counts from a live tab list. */
 export function applyTabSnapshot(
   session: IntentSession,
@@ -35,17 +45,20 @@ export function applyTabSnapshot(
     .filter((id): id is number => typeof id === 'number');
 
   const relatedTabIds = trackableTabs
-    .filter((tab) =>
-      isTabRelatedToIntent(
-        { title: tab.title ?? '', url: tab.url ?? '' },
-        session.keywords,
-      ),
-    )
+    .filter((tab) => tabMatchesIntent(tab, session.keywords))
+    .map((tab) => tab.id)
+    .filter((id): id is number => typeof id === 'number');
+
+  const unrelatedTabIds = trackableTabs
+    .filter((tab) => !tabMatchesIntent(tab, session.keywords))
     .map((tab) => tab.id)
     .filter((id): id is number => typeof id === 'number');
 
   const seenRelatedTabIds = [
     ...new Set([...session.seenRelatedTabIds, ...relatedTabIds]),
+  ];
+  const seenUnrelatedTabIds = [
+    ...new Set([...session.seenUnrelatedTabIds, ...unrelatedTabIds]),
   ];
 
   return {
@@ -53,7 +66,14 @@ export function applyTabSnapshot(
     trackedTabIds,
     relatedTabIds,
     seenRelatedTabIds,
+    seenUnrelatedTabIds,
   };
+}
+
+export function getUnrelatedTabIds(session: IntentSession): number[] {
+  return session.trackedTabIds.filter(
+    (id) => !session.relatedTabIds.includes(id),
+  );
 }
 
 export async function queryTabs(): Promise<TabSnapshotInput[]> {

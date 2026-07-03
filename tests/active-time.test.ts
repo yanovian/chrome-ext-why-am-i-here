@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   getActiveFocusMs,
-  isCheckInDue,
+  getDistractionMs,
+  isDistractionNudgeDue,
+  isRabbitHoleDue,
   startActiveFocus,
+  startDistraction,
   stopActiveFocus,
+  stopDistraction,
   tickActiveFocus,
+  tickDistraction,
 } from '../utils/active-time';
 import { createSession } from '../utils/session-manager';
 import { DEFAULT_SETTINGS } from '../utils/types';
@@ -18,6 +23,13 @@ describe('startActiveFocus', () => {
   });
 });
 
+describe('startDistraction', () => {
+  it('records a distraction start timestamp', () => {
+    const distracted = startDistraction(session, 1_000);
+    expect(distracted.distractionStartedAt).toBe(1_000);
+  });
+});
+
 describe('stopActiveFocus', () => {
   it('accumulates elapsed focus time', () => {
     const focused = startActiveFocus(session, 1_000);
@@ -25,6 +37,16 @@ describe('stopActiveFocus', () => {
 
     expect(stopped.activeFocusMs).toBe(30_000);
     expect(stopped.focusStartedAt).toBeNull();
+  });
+});
+
+describe('stopDistraction', () => {
+  it('accumulates elapsed distraction time', () => {
+    const distracted = startDistraction(session, 1_000);
+    const stopped = stopDistraction(distracted, 61_000);
+
+    expect(stopped.distractionMs).toBe(60_000);
+    expect(stopped.distractionStartedAt).toBeNull();
   });
 });
 
@@ -38,15 +60,29 @@ describe('tickActiveFocus', () => {
   });
 });
 
-describe('isCheckInDue', () => {
-  it('uses accumulated active focus time', () => {
+describe('tickDistraction', () => {
+  it('rolls distraction forward without stopping', () => {
+    const distracted = startDistraction(session, 1_000);
+    const ticked = tickDistraction(distracted, 11_000);
+
+    expect(ticked.distractionMs).toBe(10_000);
+    expect(ticked.distractionStartedAt).toBe(11_000);
+  });
+});
+
+describe('nudge thresholds', () => {
+  it('tracks rabbit-hole and distraction readiness separately', () => {
     const ready = {
       ...session,
       activeFocusMs: 30 * 60_000,
       checkInAfterActiveMs: 30 * 60_000,
+      distractionMs: 5 * 60_000,
+      nudgeAfterDistractionMs: 5 * 60_000,
     };
 
-    expect(isCheckInDue(ready)).toBe(true);
+    expect(isRabbitHoleDue(ready)).toBe(true);
+    expect(isDistractionNudgeDue(ready)).toBe(true);
     expect(getActiveFocusMs(ready)).toBe(30 * 60_000);
+    expect(getDistractionMs(ready)).toBe(5 * 60_000);
   });
 });

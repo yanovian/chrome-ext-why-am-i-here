@@ -1,17 +1,23 @@
 /** User-configurable extension settings (stored locally). */
 export interface ExtensionSettings {
-  /** Active minutes on related tabs before a check-in. Default: 30 */
-  checkInIntervalMinutes: number;
-  /** Minimum open tab count before surfacing a check-in. Default: 40 */
-  tabCountThreshold: number;
-  /** Minimum related tabs required to show a check-in. Default: 3 */
-  minRelatedTabs: number;
+  /** Minutes on off-goal tabs before a distraction nudge. Default: 5 */
+  distractionMinutes: number;
+  /** Min unrelated tabs open (and leading related) for distraction nudge. Default: 2 */
+  unrelatedTabThreshold: number;
+  /** Minutes on related tabs before a rabbit-hole check-in. Default: 30 */
+  rabbitHoleMinutes: number;
+  /** Min open tabs before rabbit-hole check-in. Default: 40 */
+  rabbitHoleTabThreshold: number;
+  /** Min related tabs before rabbit-hole check-in. Default: 3 */
+  rabbitHoleMinRelatedTabs: number;
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
-  checkInIntervalMinutes: 30,
-  tabCountThreshold: 40,
-  minRelatedTabs: 3,
+  distractionMinutes: 5,
+  unrelatedTabThreshold: 2,
+  rabbitHoleMinutes: 30,
+  rabbitHoleTabThreshold: 40,
+  rabbitHoleMinRelatedTabs: 3,
 };
 
 export type SessionStatus = 'active' | 'completed' | 'dismissed';
@@ -25,26 +31,39 @@ export interface IntentSession {
   status: SessionStatus;
   /** Ms spent on related tabs while the window was focused */
   activeFocusMs: number;
-  /** When the current focused stretch on a related tab began */
+  /** When the current on-goal focus stretch began */
   focusStartedAt: number | null;
-  /** Active focus ms required before check-in becomes eligible */
+  /** On-goal ms required before rabbit-hole check-in */
   checkInAfterActiveMs: number;
+  /** Ms spent on unrelated trackable tabs while the window was focused */
+  distractionMs: number;
+  /** When the current off-goal stretch began */
+  distractionStartedAt: number | null;
+  /** Off-goal ms required before distraction nudge */
+  nudgeAfterDistractionMs: number;
   /** All trackable tab IDs currently open */
   trackedTabIds: number[];
   /** Tab IDs that match the intent keywords */
   relatedTabIds: number[];
   /** Unique related tab IDs seen during this session */
   seenRelatedTabIds: number[];
+  /** Unique unrelated tab IDs seen during this session */
+  seenUnrelatedTabIds: number[];
 }
 
 export type CheckInResponse = 'completed' | 'continue' | 'dismissed';
 
+export type FocusNudgeType = 'distraction' | 'rabbit-hole';
+
 export interface PendingCheckIn {
   sessionId: string;
   intent: string;
+  type: FocusNudgeType;
   relatedTabCount: number;
+  unrelatedTabCount: number;
   totalTabCount: number;
-  activeMinutes: number;
+  onGoalMinutes: number;
+  distractionMinutes: number;
   createdAt: number;
 }
 

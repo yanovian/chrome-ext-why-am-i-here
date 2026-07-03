@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { extractKeywords } from '../utils/intent-matcher';
 import { createSession } from '../utils/session-manager';
 
+import { DEFAULT_SETTINGS } from '../utils/types';
+
 describe('persistGoal prerequisites', () => {
   it('accepts single-word goals like AWS', () => {
     expect(extractKeywords('AWS')).toEqual(['aws']);
@@ -11,11 +13,7 @@ describe('persistGoal prerequisites', () => {
     const session = createSession(
       'AWS pricing',
       ['aws', 'pricing'],
-      {
-        checkInIntervalMinutes: 30,
-        tabCountThreshold: 40,
-        minRelatedTabs: 3,
-      },
+      DEFAULT_SETTINGS,
     );
 
     expect(session.status).toBe('active');

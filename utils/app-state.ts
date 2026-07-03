@@ -26,7 +26,8 @@ export async function saveAppSettings(
   if (activeSession) {
     await saveActiveSession({
       ...activeSession,
-      checkInAfterActiveMs: next.checkInIntervalMinutes * 60_000,
+      checkInAfterActiveMs: next.rabbitHoleMinutes * 60_000,
+      nudgeAfterDistractionMs: next.distractionMinutes * 60_000,
     });
   }
 

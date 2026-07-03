@@ -1,6 +1,11 @@
 import './style.css';
 import { loadAppState, saveAppSettings } from '../../utils/app-state';
-import { formatCheckInHint, getGoalStats } from '../../utils/goal-display';
+import {
+  formatCheckInHint,
+  formatNudgeBody,
+  formatNudgeTitle,
+  getGoalStats,
+} from '../../utils/goal-display';
 import { clearGoal, persistGoal, wakeBackgroundAndWait } from '../../utils/persist-goal';
 import { getSettings } from '../../utils/storage';
 import { refreshSessionFromOpenTabs } from '../../utils/tab-tracker';
@@ -17,9 +22,10 @@ const dismissBtn = document.querySelector<HTMLButtonElement>('#dismiss-btn')!;
 const currentGoalSection =
   document.querySelector<HTMLElement>('#current-goal-section')!;
 const activeGoal = document.querySelector<HTMLElement>('#active-goal')!;
-const activeMinutes = document.querySelector<HTMLElement>('#active-minutes')!;
+const onGoalMinutes = document.querySelector<HTMLElement>('#on-goal-minutes')!;
+const distractedMinutes = document.querySelector<HTMLElement>('#distracted-minutes')!;
 const relatedCount = document.querySelector<HTMLElement>('#related-count')!;
-const totalCount = document.querySelector<HTMLElement>('#total-count')!;
+const unrelatedCount = document.querySelector<HTMLElement>('#unrelated-count')!;
 const activeHint = document.querySelector<HTMLElement>('#active-hint')!;
 const endSessionBtn = document.querySelector<HTMLButtonElement>('#end-session-btn')!;
 
@@ -31,9 +37,16 @@ const popupStartBtn = document.querySelector<HTMLButtonElement>('#popup-start-bt
 
 const settingsToggle = document.querySelector<HTMLButtonElement>('#settings-toggle')!;
 const settingsSection = document.querySelector<HTMLElement>('#settings-section')!;
-const settingInterval = document.querySelector<HTMLInputElement>('#setting-interval')!;
-const settingThreshold = document.querySelector<HTMLInputElement>('#setting-threshold')!;
-const settingRelated = document.querySelector<HTMLInputElement>('#setting-related')!;
+const settingDistractionMinutes =
+  document.querySelector<HTMLInputElement>('#setting-distraction-minutes')!;
+const settingUnrelatedThreshold =
+  document.querySelector<HTMLInputElement>('#setting-unrelated-threshold')!;
+const settingRabbitMinutes =
+  document.querySelector<HTMLInputElement>('#setting-rabbit-minutes')!;
+const settingRabbitTabs =
+  document.querySelector<HTMLInputElement>('#setting-rabbit-tabs')!;
+const settingRabbitRelated =
+  document.querySelector<HTMLInputElement>('#setting-rabbit-related')!;
 const saveSettingsBtn = document.querySelector<HTMLButtonElement>('#save-settings-btn')!;
 const settingsStatus = document.querySelector<HTMLElement>('#settings-status')!;
 
@@ -55,9 +68,11 @@ function clearPopupError() {
 function applySettingsToInputs(
   settings = DEFAULT_SETTINGS,
 ): void {
-  settingInterval.value = String(settings.checkInIntervalMinutes);
-  settingThreshold.value = String(settings.tabCountThreshold);
-  settingRelated.value = String(settings.minRelatedTabs);
+  settingDistractionMinutes.value = String(settings.distractionMinutes);
+  settingUnrelatedThreshold.value = String(settings.unrelatedTabThreshold);
+  settingRabbitMinutes.value = String(settings.rabbitHoleMinutes);
+  settingRabbitTabs.value = String(settings.rabbitHoleTabThreshold);
+  settingRabbitRelated.value = String(settings.rabbitHoleMinRelatedTabs);
 }
 
 function setSettingsOpen(open: boolean) {
@@ -80,9 +95,10 @@ function renderCurrentGoal(
   const stats = getGoalStats(session);
   currentGoalSection.classList.remove('hidden');
   activeGoal.textContent = session.intent;
-  activeMinutes.textContent = String(stats.activeMinutes);
+  onGoalMinutes.textContent = String(stats.onGoalMinutes);
+  distractedMinutes.textContent = String(stats.distractedMinutes);
   relatedCount.textContent = String(stats.relatedTabs);
-  totalCount.textContent = String(stats.openTabs);
+  unrelatedCount.textContent = String(stats.unrelatedTabs);
   activeHint.textContent = formatCheckInHint(session, settings);
   goalFormLabel.textContent = 'Set a new goal';
   popupStartBtn.textContent = 'Replace goal';
@@ -101,11 +117,15 @@ async function renderGoalFromState(
   state: Awaited<ReturnType<typeof loadAppState>>,
 ) {
   if (state.pendingCheckIn) {
+    const pending = state.pendingCheckIn;
     checkinSection.classList.remove('hidden');
-    checkinTitle.textContent = 'Time for a check-in';
-    checkinBody.textContent = `You spent ${state.pendingCheckIn.activeMinutes} active minutes on “${state.pendingCheckIn.intent}” and opened ${state.pendingCheckIn.relatedTabCount} related tabs (${state.pendingCheckIn.totalTabCount} open). Goal completed?`;
+    checkinTitle.textContent = formatNudgeTitle(pending.type);
+    checkinBody.textContent = formatNudgeBody(pending);
+    continueBtn.textContent =
+      pending.type === 'distraction' ? 'Back on track' : 'Keep going';
   } else {
     checkinSection.classList.add('hidden');
+    continueBtn.textContent = 'Keep going';
   }
 
   if (state.activeSession) {
@@ -220,9 +240,11 @@ saveSettingsBtn.addEventListener('click', () => {
 
     try {
       const saved = await saveAppSettings({
-        checkInIntervalMinutes: Number(settingInterval.value),
-        tabCountThreshold: Number(settingThreshold.value),
-        minRelatedTabs: Number(settingRelated.value),
+        distractionMinutes: Number(settingDistractionMinutes.value),
+        unrelatedTabThreshold: Number(settingUnrelatedThreshold.value),
+        rabbitHoleMinutes: Number(settingRabbitMinutes.value),
+        rabbitHoleTabThreshold: Number(settingRabbitTabs.value),
+        rabbitHoleMinRelatedTabs: Number(settingRabbitRelated.value),
       });
       applySettingsToInputs(saved);
       void wakeBackgroundAndWait();
@@ -246,10 +268,7 @@ browser.storage.onChanged.addListener((changes, area) => {
     return;
   }
 
-  if (
-    'activeSession' in changes ||
-    'pendingCheckIn' in changes
-  ) {
+  if ('activeSession' in changes || 'pendingCheckIn' in changes) {
     clearTimeout(storageRenderTimer);
     storageRenderTimer = setTimeout(() => {
       void render();

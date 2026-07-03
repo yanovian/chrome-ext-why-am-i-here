@@ -160,7 +160,25 @@ export async function saveActiveSession(
 
 export async function getPendingCheckIn(): Promise<PendingCheckIn | null> {
   await migrateLegacyStorageIfNeeded();
-  return (await readLocal<PendingCheckIn>(KEYS.pendingCheckIn)) ?? null;
+  const raw = await readLocal<
+    PendingCheckIn & { activeMinutes?: number; type?: PendingCheckIn['type'] }
+  >(KEYS.pendingCheckIn);
+
+  if (!raw) {
+    return null;
+  }
+
+  return {
+    sessionId: raw.sessionId,
+    intent: raw.intent,
+    type: raw.type ?? 'rabbit-hole',
+    relatedTabCount: raw.relatedTabCount ?? 0,
+    unrelatedTabCount: raw.unrelatedTabCount ?? 0,
+    totalTabCount: raw.totalTabCount ?? 0,
+    onGoalMinutes: raw.onGoalMinutes ?? raw.activeMinutes ?? 0,
+    distractionMinutes: raw.distractionMinutes ?? 0,
+    createdAt: raw.createdAt,
+  };
 }
 
 export async function savePendingCheckIn(

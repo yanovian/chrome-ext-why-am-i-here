@@ -16,5 +16,6 @@ describe('applyTabSnapshot', () => {
     expect(updated.trackedTabIds).toEqual([1, 2]);
     expect(updated.relatedTabIds).toEqual([1]);
     expect(updated.seenRelatedTabIds).toEqual([1]);
+    expect(updated.seenUnrelatedTabIds).toEqual([2]);
   });
 });

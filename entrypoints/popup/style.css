@@ -254,11 +254,19 @@ button {
   gap: 8px;
 }
 
-.stats-3 .stat {
+.stats-4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stats-3 .stat,
+.stats-4 .stat {
   padding: 8px 6px;
 }
 
-.stats-3 .stat strong {
+.stats-3 .stat strong,
+.stats-4 .stat strong {
   font-size: 18px;
 }
 

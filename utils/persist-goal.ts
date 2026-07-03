@@ -1,5 +1,5 @@
 import type { IntentSession } from './types';
-import { stopActiveFocus } from './active-time';
+import { stopActiveFocus, stopDistraction } from './active-time';
 import { extractKeywords } from './intent-matcher';
 import {
   appendSessionHistory,
@@ -42,7 +42,7 @@ export async function persistGoal(intent: string): Promise<PersistGoalResult> {
     const history = await getSessionHistory();
     await saveSessionHistory(
       appendSessionHistory(history, {
-        ...stopActiveFocus(existing),
+        ...stopDistraction(stopActiveFocus(existing)),
         status: 'dismissed',
       }),
     );
@@ -77,7 +77,7 @@ export async function clearGoal(): Promise<void> {
     const history = await getSessionHistory();
     await saveSessionHistory(
       appendSessionHistory(history, {
-        ...stopActiveFocus(session),
+        ...stopDistraction(stopActiveFocus(session)),
         status: 'dismissed',
       }),
     );

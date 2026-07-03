@@ -39,18 +39,22 @@
       <section id="current-goal-section" class="panel hidden">
         <p class="section-label">Current goal</p>
         <p class="goal-label" id="active-goal"></p>
-        <div class="stats stats-3">
+        <div class="stats stats-4">
           <div class="stat">
-            <strong id="active-minutes">0</strong>
+            <strong id="on-goal-minutes">0</strong>
             <span>min on goal</span>
           </div>
           <div class="stat">
-            <strong id="related-count">0</strong>
-            <span>related tabs</span>
+            <strong id="distracted-minutes">0</strong>
+            <span>min distracted</span>
           </div>
           <div class="stat">
-            <strong id="total-count">0</strong>
-            <span>open tabs</span>
+            <strong id="related-count">0</strong>
+            <span>on-goal tabs</span>
+          </div>
+          <div class="stat">
+            <strong id="unrelated-count">0</strong>
+            <span>off-goal tabs</span>
           </div>
         </div>
         <p class="hint" id="active-hint"></p>
@@ -76,12 +80,37 @@
       </section>
 
       <section id="settings-section" class="panel hidden">
-        <p class="section-label">Settings</p>
+        <p class="section-label">Distraction nudges</p>
         <div class="settings-grid">
           <label>
-            Active minutes before check-in
+            Off-goal minutes before nudge
             <input
-              id="setting-interval"
+              id="setting-distraction-minutes"
+              type="number"
+              min="1"
+              max="60"
+              step="1"
+              value="5"
+            />
+          </label>
+          <label>
+            Min off-goal tabs (leading on-goal)
+            <input
+              id="setting-unrelated-threshold"
+              type="number"
+              min="1"
+              max="50"
+              step="1"
+              value="2"
+            />
+          </label>
+        </div>
+        <p class="section-label">Rabbit-hole check-ins</p>
+        <div class="settings-grid">
+          <label>
+            On-goal minutes before check-in
+            <input
+              id="setting-rabbit-minutes"
               type="number"
               min="5"
               max="180"
@@ -90,9 +119,9 @@
             />
           </label>
           <label>
-            Tab threshold
+            Min open tabs
             <input
-              id="setting-threshold"
+              id="setting-rabbit-tabs"
               type="number"
               min="5"
               max="200"
@@ -101,9 +130,9 @@
             />
           </label>
           <label>
-            Min related tabs
+            Min on-goal tabs
             <input
-              id="setting-related"
+              id="setting-rabbit-related"
               type="number"
               min="1"
               max="50"

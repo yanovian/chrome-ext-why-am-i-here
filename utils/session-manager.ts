@@ -1,11 +1,18 @@
 import type {
   CheckInResponse,
   ExtensionSettings,
+  FocusNudgeType,
   IntentSession,
   PendingCheckIn,
 } from './types';
 import { DEFAULT_SETTINGS } from './types';
-import { getActiveMinutes } from './active-time';
+import {
+  getActiveMinutes,
+  getDistractionMinutes,
+  getDistractionMs,
+  getActiveFocusMs,
+  stopDistraction,
+} from './active-time';
 
 export function createSession(
   intent: string,
@@ -13,8 +20,6 @@ export function createSession(
   settings: ExtensionSettings,
   now = Date.now(),
 ): IntentSession {
-  const intervalMs = settings.checkInIntervalMinutes * 60_000;
-
   return {
     id: crypto.randomUUID(),
     intent: intent.trim(),
@@ -23,14 +28,48 @@ export function createSession(
     status: 'active',
     activeFocusMs: 0,
     focusStartedAt: null,
-    checkInAfterActiveMs: intervalMs,
+    checkInAfterActiveMs: settings.rabbitHoleMinutes * 60_000,
+    distractionMs: 0,
+    distractionStartedAt: null,
+    nudgeAfterDistractionMs: settings.distractionMinutes * 60_000,
     trackedTabIds: [],
     relatedTabIds: [],
     seenRelatedTabIds: [],
+    seenUnrelatedTabIds: [],
   };
 }
 
-export interface CheckInEvaluationInput {
+export interface DistractionNudgeInput {
+  session: IntentSession;
+  settings: ExtensionSettings;
+  unrelatedOpenCount: number;
+  relatedOpenCount: number;
+  now?: number;
+}
+
+/** Nudge when user has spent time off-goal and unrelated tabs dominate. */
+export function shouldSurfaceDistractionNudge({
+  session,
+  settings,
+  unrelatedOpenCount,
+  relatedOpenCount,
+  now = Date.now(),
+}: DistractionNudgeInput): boolean {
+  if (session.status !== 'active') {
+    return false;
+  }
+
+  if (getDistractionMs(session, now) < session.nudgeAfterDistractionMs) {
+    return false;
+  }
+
+  return (
+    unrelatedOpenCount >= settings.unrelatedTabThreshold &&
+    unrelatedOpenCount > relatedOpenCount
+  );
+}
+
+export interface RabbitHoleNudgeInput {
   session: IntentSession;
   settings: ExtensionSettings;
   totalTabCount: number;
@@ -38,30 +77,27 @@ export interface CheckInEvaluationInput {
   now?: number;
 }
 
-export function shouldSurfaceCheckIn({
+/** Check-in when user has been deep on related tabs with many tabs open. */
+export function shouldSurfaceRabbitHoleNudge({
   session,
   settings,
   totalTabCount,
   relatedTabCount,
   now = Date.now(),
-}: CheckInEvaluationInput): boolean {
+}: RabbitHoleNudgeInput): boolean {
   if (session.status !== 'active') {
     return false;
   }
 
-  const activeMs =
-    session.activeFocusMs +
-    (session.focusStartedAt === null ? 0 : now - session.focusStartedAt);
-
-  if (activeMs < session.checkInAfterActiveMs) {
+  if (getActiveFocusMs(session, now) < session.checkInAfterActiveMs) {
     return false;
   }
 
-  if (totalTabCount < settings.tabCountThreshold) {
+  if (totalTabCount < settings.rabbitHoleTabThreshold) {
     return false;
   }
 
-  if (relatedTabCount < settings.minRelatedTabs) {
+  if (relatedTabCount < settings.rabbitHoleMinRelatedTabs) {
     return false;
   }
 
@@ -70,6 +106,8 @@ export function shouldSurfaceCheckIn({
 
 export function buildPendingCheckIn(
   session: IntentSession,
+  type: FocusNudgeType,
+  unrelatedTabCount: number,
   totalTabCount: number,
   relatedTabCount: number,
   now = Date.now(),
@@ -77,9 +115,12 @@ export function buildPendingCheckIn(
   return {
     sessionId: session.id,
     intent: session.intent,
+    type,
     relatedTabCount,
+    unrelatedTabCount,
     totalTabCount,
-    activeMinutes: getActiveMinutes(session, now),
+    onGoalMinutes: getActiveMinutes(session, now),
+    distractionMinutes: getDistractionMinutes(session, now),
     createdAt: now,
   };
 }
@@ -88,39 +129,77 @@ export function applyCheckInResponse(
   session: IntentSession,
   response: CheckInResponse,
 ): IntentSession {
+  const stopped = stopDistraction({
+    ...session,
+    focusStartedAt: null,
+  });
+
   if (response === 'completed') {
-    return { ...session, status: 'completed', focusStartedAt: null };
+    return { ...stopped, status: 'completed' };
   }
 
   if (response === 'dismissed') {
-    return { ...session, status: 'dismissed', focusStartedAt: null };
+    return { ...stopped, status: 'dismissed' };
   }
 
-  return session;
+  return stopped;
 }
 
 export function snoozeSession(
   session: IntentSession,
   settings: ExtensionSettings,
+  nudgeType: FocusNudgeType,
   now = Date.now(),
 ): IntentSession {
-  const activeMs =
-    session.activeFocusMs +
-    (session.focusStartedAt === null ? 0 : now - session.focusStartedAt);
-  const intervalMs = settings.checkInIntervalMinutes * 60_000;
+  if (nudgeType === 'distraction') {
+    return {
+      ...stopDistraction(session, now),
+      distractionMs: 0,
+      distractionStartedAt: null,
+      nudgeAfterDistractionMs: settings.distractionMinutes * 60_000,
+    };
+  }
 
+  const activeMs = getActiveFocusMs(session, now);
   return {
     ...session,
-    checkInAfterActiveMs: activeMs + intervalMs,
+    checkInAfterActiveMs: activeMs + settings.rabbitHoleMinutes * 60_000,
   };
 }
 
+type LegacySettings = Partial<ExtensionSettings> & {
+  checkInIntervalMinutes?: number;
+  tabCountThreshold?: number;
+  minRelatedTabs?: number;
+};
+
 export function mergeSettings(
-  partial: Partial<ExtensionSettings> | undefined,
+  partial: LegacySettings | undefined,
 ): ExtensionSettings {
+  const legacy = partial ?? {};
+
   return {
-    ...DEFAULT_SETTINGS,
-    ...partial,
+    distractionMinutes: Number(
+      legacy.distractionMinutes ?? DEFAULT_SETTINGS.distractionMinutes,
+    ),
+    unrelatedTabThreshold: Number(
+      legacy.unrelatedTabThreshold ?? DEFAULT_SETTINGS.unrelatedTabThreshold,
+    ),
+    rabbitHoleMinutes: Number(
+      legacy.rabbitHoleMinutes ??
+        legacy.checkInIntervalMinutes ??
+        DEFAULT_SETTINGS.rabbitHoleMinutes,
+    ),
+    rabbitHoleTabThreshold: Number(
+      legacy.rabbitHoleTabThreshold ??
+        legacy.tabCountThreshold ??
+        DEFAULT_SETTINGS.rabbitHoleTabThreshold,
+    ),
+    rabbitHoleMinRelatedTabs: Number(
+      legacy.rabbitHoleMinRelatedTabs ??
+        legacy.minRelatedTabs ??
+        DEFAULT_SETTINGS.rabbitHoleMinRelatedTabs,
+    ),
   };
 }
 
@@ -138,17 +217,24 @@ export function normalizeSession(
 ): IntentSession {
   const raw = session as IntentSession & {
     checkInAt?: number;
-    activeFocusMs?: number;
-    focusStartedAt?: number | null;
     checkInAfterActiveMs?: number;
     seenRelatedTabIds?: number[];
+    seenUnrelatedTabIds?: number[];
+    distractionMs?: number;
+    distractionStartedAt?: number | null;
+    nudgeAfterDistractionMs?: number;
   };
+
+  const settings = mergeSettings(undefined);
 
   const checkInAfterActiveMs =
     raw.checkInAfterActiveMs ??
     (raw.checkInAt
       ? Math.max(0, raw.checkInAt - raw.startedAt)
-      : DEFAULT_SETTINGS.checkInIntervalMinutes * 60_000);
+      : settings.rabbitHoleMinutes * 60_000);
+
+  const nudgeAfterDistractionMs =
+    raw.nudgeAfterDistractionMs ?? settings.distractionMinutes * 60_000;
 
   return {
     id: raw.id,
@@ -159,8 +245,15 @@ export function normalizeSession(
     activeFocusMs: raw.activeFocusMs ?? 0,
     focusStartedAt: raw.focusStartedAt ?? null,
     checkInAfterActiveMs,
+    distractionMs: raw.distractionMs ?? 0,
+    distractionStartedAt: raw.distractionStartedAt ?? null,
+    nudgeAfterDistractionMs,
     trackedTabIds: raw.trackedTabIds ?? [],
     relatedTabIds: raw.relatedTabIds ?? [],
     seenRelatedTabIds: raw.seenRelatedTabIds ?? raw.relatedTabIds ?? [],
+    seenUnrelatedTabIds: raw.seenUnrelatedTabIds ?? [],
   };
 }
+
+/** @deprecated Use shouldSurfaceRabbitHoleNudge */
+export const shouldSurfaceCheckIn = shouldSurfaceRabbitHoleNudge;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getActiveMinutes,
+  getDistractionMinutes,
   startActiveFocus,
   stopActiveFocus,
 } from '../utils/active-time';
@@ -10,7 +11,8 @@ import {
   buildPendingCheckIn,
   createSession,
   normalizeSession,
-  shouldSurfaceCheckIn,
+  shouldSurfaceDistractionNudge,
+  shouldSurfaceRabbitHoleNudge,
   snoozeSession,
 } from '../utils/session-manager';
 import { DEFAULT_SETTINGS } from '../utils/types';
@@ -23,11 +25,14 @@ const baseSession = createSession(
 );
 
 describe('createSession', () => {
-  it('starts with zero active focus time', () => {
+  it('starts with zero focus and distraction time', () => {
     expect(baseSession.activeFocusMs).toBe(0);
-    expect(baseSession.focusStartedAt).toBeNull();
+    expect(baseSession.distractionMs).toBe(0);
     expect(baseSession.checkInAfterActiveMs).toBe(
-      DEFAULT_SETTINGS.checkInIntervalMinutes * 60_000,
+      DEFAULT_SETTINGS.rabbitHoleMinutes * 60_000,
+    );
+    expect(baseSession.nudgeAfterDistractionMs).toBe(
+      DEFAULT_SETTINGS.distractionMinutes * 60_000,
     );
   });
 });
@@ -41,17 +46,51 @@ describe('active focus time', () => {
   });
 });
 
-describe('shouldSurfaceCheckIn', () => {
-  it('requires active minutes, tab count, and related tabs', () => {
+describe('shouldSurfaceDistractionNudge', () => {
+  it('requires off-goal time and unrelated tabs leading', () => {
     const ready = {
       ...baseSession,
-      activeFocusMs: DEFAULT_SETTINGS.checkInIntervalMinutes * 60_000,
+      distractionMs: DEFAULT_SETTINGS.distractionMinutes * 60_000,
+    };
+
+    expect(
+      shouldSurfaceDistractionNudge({
+        session: ready,
+        settings: DEFAULT_SETTINGS,
+        unrelatedOpenCount: 3,
+        relatedOpenCount: 1,
+      }),
+    ).toBe(true);
+  });
+
+  it('does not surface when on-goal tabs dominate', () => {
+    const ready = {
+      ...baseSession,
+      distractionMs: DEFAULT_SETTINGS.distractionMinutes * 60_000,
+    };
+
+    expect(
+      shouldSurfaceDistractionNudge({
+        session: ready,
+        settings: DEFAULT_SETTINGS,
+        unrelatedOpenCount: 1,
+        relatedOpenCount: 3,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('shouldSurfaceRabbitHoleNudge', () => {
+  it('requires on-goal minutes, tab count, and related tabs', () => {
+    const ready = {
+      ...baseSession,
+      activeFocusMs: DEFAULT_SETTINGS.rabbitHoleMinutes * 60_000,
       seenRelatedTabIds: Array.from({ length: 17 }, (_, index) => index + 1),
       relatedTabIds: [1, 2, 3],
     };
 
     expect(
-      shouldSurfaceCheckIn({
+      shouldSurfaceRabbitHoleNudge({
         session: ready,
         settings: DEFAULT_SETTINGS,
         totalTabCount: 40,
@@ -60,9 +99,9 @@ describe('shouldSurfaceCheckIn', () => {
     ).toBe(true);
   });
 
-  it('does not surface before enough active minutes', () => {
+  it('does not surface before enough on-goal minutes', () => {
     expect(
-      shouldSurfaceCheckIn({
+      shouldSurfaceRabbitHoleNudge({
         session: baseSession,
         settings: DEFAULT_SETTINGS,
         totalTabCount: 40,
@@ -73,16 +112,19 @@ describe('shouldSurfaceCheckIn', () => {
 });
 
 describe('buildPendingCheckIn', () => {
-  it('captures active minutes and counts', () => {
+  it('captures both on-goal and distraction minutes', () => {
     const session = {
       ...baseSession,
       activeFocusMs: 30 * 60_000,
+      distractionMs: 5 * 60_000,
       seenRelatedTabIds: [1, 2, 3],
     };
-    const pending = buildPendingCheckIn(session, 40, 3, 9_000);
+    const pending = buildPendingCheckIn(session, 'rabbit-hole', 2, 40, 3, 9_000);
 
-    expect(pending.activeMinutes).toBe(30);
+    expect(pending.onGoalMinutes).toBe(30);
+    expect(pending.distractionMinutes).toBe(5);
     expect(pending.relatedTabCount).toBe(3);
+    expect(pending.type).toBe('rabbit-hole');
   });
 });
 
@@ -95,15 +137,29 @@ describe('applyCheckInResponse', () => {
 });
 
 describe('snoozeSession', () => {
-  it('extends the active-minute threshold', () => {
+  it('resets distraction tracking for distraction nudges', () => {
+    const distracted = {
+      ...baseSession,
+      distractionMs: 10 * 60_000,
+      distractionStartedAt: 5_000,
+    };
+    const snoozed = snoozeSession(distracted, DEFAULT_SETTINGS, 'distraction', 5_000);
+
+    expect(snoozed.distractionMs).toBe(0);
+    expect(snoozed.nudgeAfterDistractionMs).toBe(
+      DEFAULT_SETTINGS.distractionMinutes * 60_000,
+    );
+  });
+
+  it('extends the on-goal threshold for rabbit-hole nudges', () => {
     const active = {
       ...baseSession,
       activeFocusMs: 10 * 60_000,
     };
-    const snoozed = snoozeSession(active, DEFAULT_SETTINGS, 5_000);
+    const snoozed = snoozeSession(active, DEFAULT_SETTINGS, 'rabbit-hole', 5_000);
 
     expect(snoozed.checkInAfterActiveMs).toBe(
-      active.activeFocusMs + DEFAULT_SETTINGS.checkInIntervalMinutes * 60_000,
+      active.activeFocusMs + DEFAULT_SETTINGS.rabbitHoleMinutes * 60_000,
     );
   });
 });
@@ -122,7 +178,11 @@ describe('normalizeSession', () => {
     });
 
     expect(legacy.checkInAfterActiveMs).toBe(30 * 60_000);
+    expect(legacy.nudgeAfterDistractionMs).toBe(
+      DEFAULT_SETTINGS.distractionMinutes * 60_000,
+    );
     expect(legacy.seenRelatedTabIds).toEqual([1]);
+    expect(legacy.seenUnrelatedTabIds).toEqual([]);
   });
 });
 
@@ -143,5 +203,16 @@ describe('appendSessionHistory', () => {
       'three',
       'two',
     ]);
+  });
+});
+
+describe('distraction minutes', () => {
+  it('reads distraction time from session state', () => {
+    const distracted = {
+      ...baseSession,
+      distractionMs: 3 * 60_000,
+    };
+
+    expect(getDistractionMinutes(distracted)).toBe(3);
   });
 });
