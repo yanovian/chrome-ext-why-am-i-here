@@ -30,6 +30,8 @@ describe('formatCheckInHint', () => {
       focusStartedAt: null,
     };
 
-    expect(formatCheckInHint(session)).toBe('20 more active minutes until check-in.');
+    expect(formatCheckInHint(session, DEFAULT_SETTINGS)).toBe(
+      '20 more active minutes on related tabs until check-in.',
+    );
   });
 });

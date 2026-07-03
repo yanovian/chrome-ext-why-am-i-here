@@ -73,14 +73,17 @@ function renderEmptyGoalForm() {
   lastRenderedSessionId = null;
 }
 
-function renderCurrentGoal(session: IntentSession) {
+function renderCurrentGoal(
+  session: IntentSession,
+  settings = DEFAULT_SETTINGS,
+) {
   const stats = getGoalStats(session);
   currentGoalSection.classList.remove('hidden');
   activeGoal.textContent = session.intent;
   activeMinutes.textContent = String(stats.activeMinutes);
   relatedCount.textContent = String(stats.relatedTabs);
   totalCount.textContent = String(stats.openTabs);
-  activeHint.textContent = formatCheckInHint(session);
+  activeHint.textContent = formatCheckInHint(session, settings);
   goalFormLabel.textContent = 'Set a new goal';
   popupStartBtn.textContent = 'Replace goal';
   lastRenderedSessionId = session.id;
@@ -107,7 +110,7 @@ async function renderGoalFromState(
 
   if (state.activeSession) {
     const session = await loadLiveSession(state.activeSession);
-    renderCurrentGoal(session);
+    renderCurrentGoal(session, state.settings);
     return;
   }
 
@@ -171,7 +174,7 @@ async function handleSetGoal() {
 
     popupIntent.value = '';
     setSettingsOpen(false);
-    renderCurrentGoal(await loadLiveSession(result.session));
+    renderCurrentGoal(await loadLiveSession(result.session), await getSettings());
   } catch (error) {
     showPopupError(
       error instanceof Error ? error.message : 'Could not reach the extension.',
@@ -222,6 +225,8 @@ saveSettingsBtn.addEventListener('click', () => {
         minRelatedTabs: Number(settingRelated.value),
       });
       applySettingsToInputs(saved);
+      void wakeBackgroundAndWait();
+      await render();
       settingsStatus.classList.remove('hidden');
       setTimeout(() => settingsStatus.classList.add('hidden'), 1800);
     } catch (error) {

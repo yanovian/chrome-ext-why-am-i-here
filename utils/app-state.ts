@@ -3,6 +3,7 @@ import {
   getActiveSession,
   getPendingCheckIn,
   getSettings,
+  saveActiveSession,
   saveSettings,
 } from './storage';
 import { mergeSettings } from './session-manager';
@@ -20,6 +21,14 @@ export async function saveAppSettings(
     ...partial,
   });
   await saveSettings(next);
+
+  const activeSession = await getActiveSession();
+  if (activeSession) {
+    await saveActiveSession({
+      ...activeSession,
+      checkInAfterActiveMs: next.checkInIntervalMinutes * 60_000,
+    });
+  }
 
   const saved = await getSettings();
   if (JSON.stringify(saved) !== JSON.stringify(next)) {

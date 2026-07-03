@@ -1,4 +1,4 @@
-import { startActiveFocus, stopActiveFocus } from '../utils/active-time';
+import { startActiveFocus, stopActiveFocus, tickActiveFocus } from '../utils/active-time';
 import { isTabRelatedToIntent } from '../utils/intent-matcher';
 import {
   appendSessionHistory,
@@ -165,7 +165,14 @@ async function syncStoredSession(): Promise<void> {
   }
 
   await scheduleTickAlarm();
-  await updateBadge(false);
+
+  const pendingBefore = await getPendingCheckIn();
+  if (!pendingBefore) {
+    await evaluateCheckIn(next);
+  }
+
+  const pending = await getPendingCheckIn();
+  await updateBadge(!!pending, pending?.relatedTabCount);
 }
 
 function sessionsEqual(a: IntentSession, b: IntentSession): boolean {
@@ -260,7 +267,13 @@ export default defineBackground(() => {
 
     enqueueSessionTask(async () => {
       await updateSession(
-        async (session) => refreshSessionTabMatches(session),
+        async (session) => {
+          let next = await refreshSessionTabMatches(session);
+          if (next.focusStartedAt !== null) {
+            next = tickActiveFocus(next);
+          }
+          return next;
+        },
         { evaluate: true },
       );
     });

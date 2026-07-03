@@ -6,7 +6,7 @@ export default defineConfig({
     short_name: 'Why Am I Here',
     description:
       'Track why you opened tabs and get gentle check-ins before rabbit holes take over.',
-    permissions: ['tabs', 'storage'],
+    permissions: ['tabs', 'storage', 'alarms'],
     action: {
       default_title: 'Why Am I Here?',
     },
