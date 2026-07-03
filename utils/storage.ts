@@ -14,9 +14,6 @@ const KEYS = {
   sessionHistory: 'sessionHistory',
 } as const;
 
-/** @deprecated Use KEYS — kept for background listener compatibility */
-export const STORAGE_KEYS = KEYS;
-
 const LEGACY_KEYS = [
   'local:settings',
   'local:activeSession',
