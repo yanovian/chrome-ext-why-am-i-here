@@ -56,16 +56,16 @@ def rounded_gradient(size: int, box: tuple[int, int, int, int], radius: int) -> 
 def draw_sharp_question_mark(draw: ImageDraw.ImageDraw, size: int) -> None:
     """Bold geometric ? — fills most of the canvas."""
     s = float(size)
-    stroke = max(2.5, s * 0.135)
+    stroke = max(2.5, s * 0.145)
     cx = s * 0.5
 
-    hook_pad_x = s * 0.10
-    hook_pad_y = s * 0.08
+    hook_pad_x = s * 0.08
+    hook_pad_y = s * 0.06
     hook_box = (
         hook_pad_x,
         hook_pad_y,
         s - hook_pad_x,
-        s * 0.60,
+        s * 0.62,
     )
     draw.arc(
         hook_box,
@@ -76,8 +76,11 @@ def draw_sharp_question_mark(draw: ImageDraw.ImageDraw, size: int) -> None:
     )
 
     stem_w = stroke
-    stem_top = s * 0.46
-    stem_bottom = s * 0.64
+    stem_top = s * 0.44
+    stem_bottom = s * 0.62
+
+    dot_r = stroke
+    dot_cy = s * 0.76
     draw.rounded_rectangle(
         (
             cx - stem_w / 2,
@@ -89,8 +92,6 @@ def draw_sharp_question_mark(draw: ImageDraw.ImageDraw, size: int) -> None:
         fill=WHITE,
     )
 
-    dot_r = stroke * 0.95
-    dot_cy = s * 0.795
     draw.ellipse(
         (
             cx - dot_r,
