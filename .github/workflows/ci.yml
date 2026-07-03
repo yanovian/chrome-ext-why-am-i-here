@@ -38,9 +38,16 @@ jobs:
       - name: Verify zip artifact
         run: pnpm zip
 
+      - name: Locate chrome zip
+        id: chrome_zip
+        run: |
+          file=$(ls .output/*-chrome.zip)
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          test -f "$file"
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: why-am-i-here-chrome-${{ github.sha }}
-          path: .output/*-chrome.zip
+          path: ${{ steps.chrome_zip.outputs.file }}
           if-no-files-found: error

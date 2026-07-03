@@ -40,12 +40,22 @@ jobs:
       - name: Package Firefox zip
         run: pnpm zip:firefox
 
+      - name: Locate release zips
+        id: zips
+        run: |
+          chrome=$(ls .output/*-chrome.zip)
+          firefox=$(ls .output/*-firefox.zip)
+          echo "chrome=$chrome" >> "$GITHUB_OUTPUT"
+          echo "firefox=$firefox" >> "$GITHUB_OUTPUT"
+          test -f "$chrome"
+          test -f "$firefox"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           files: |
-            .output/*-chrome.zip
-            .output/*-firefox.zip
+            ${{ steps.zips.outputs.chrome }}
+            ${{ steps.zips.outputs.firefox }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
