@@ -38,6 +38,9 @@ Most tools only catch one of these. Distraction blockers punish off-task browsin
 
 No host permissions, no `notifications`, no `history`, no network access.
 
+**Privacy policy:** [PRIVACY.md](./PRIVACY.md) — we do not collect data; everything stays local on your device.  
+Public URL for the Chrome Web Store: https://github.com/yanovian/chrome-ext-why-am-i-here/blob/master/PRIVACY.md
+
 ## Quick start (development)
 
 ```bash
