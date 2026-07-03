@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Why Am I Here?</title>
+  </head>
+  <body>
+    <main class="popup">
+      <header class="header">
+        <div class="header-main">
+          <img src="/icon/48.png" alt="" width="32" height="32" />
+          <div>
+            <h1>Why Am I Here?</h1>
+            <p>Stay intentional while you browse</p>
+          </div>
+        </div>
+        <button
+          id="settings-toggle"
+          class="icon-btn"
+          type="button"
+          aria-label="Settings"
+          title="Settings"
+        >
+          ⚙
+        </button>
+      </header>
+
+      <section id="checkin-section" class="panel checkin hidden">
+        <p class="checkin-title" id="checkin-title">Time for a check-in</p>
+        <p class="checkin-body" id="checkin-body"></p>
+        <div class="btn-row">
+          <button id="complete-btn" class="btn-primary" type="button">Done</button>
+          <button id="continue-btn" class="btn-secondary" type="button">Keep going</button>
+        </div>
+        <button id="dismiss-btn" class="btn-ghost" type="button">Dismiss</button>
+      </section>
+
+      <section id="current-goal-section" class="panel hidden">
+        <p class="section-label">Current goal</p>
+        <p class="goal-label" id="active-goal"></p>
+        <div class="stats stats-3">
+          <div class="stat">
+            <strong id="active-minutes">0</strong>
+            <span>min on goal</span>
+          </div>
+          <div class="stat">
+            <strong id="related-count">0</strong>
+            <span>related tabs</span>
+          </div>
+          <div class="stat">
+            <strong id="total-count">0</strong>
+            <span>open tabs</span>
+          </div>
+        </div>
+        <p class="hint" id="active-hint"></p>
+        <button id="end-session-btn" class="btn-ghost" type="button">End goal</button>
+      </section>
+
+      <section id="goal-section" class="panel">
+        <form id="goal-form">
+          <label for="popup-intent" id="goal-form-label">What are you looking for?</label>
+          <input
+            id="popup-intent"
+            type="text"
+            placeholder='e.g. "AWS pricing"'
+            autocomplete="off"
+            spellcheck="true"
+          />
+          <p id="popup-error" class="error hidden"></p>
+          <button id="popup-start-btn" class="btn-primary" type="submit">
+            Set goal
+          </button>
+          <p class="hint">Press Enter to start tracking immediately.</p>
+        </form>
+      </section>
+
+      <section id="settings-section" class="panel hidden">
+        <p class="section-label">Settings</p>
+        <div class="settings-grid">
+          <label>
+            Active minutes before check-in
+            <input
+              id="setting-interval"
+              type="number"
+              min="5"
+              max="180"
+              step="5"
+              value="30"
+            />
+          </label>
+          <label>
+            Tab threshold
+            <input
+              id="setting-threshold"
+              type="number"
+              min="5"
+              max="200"
+              step="5"
+              value="40"
+            />
+          </label>
+          <label>
+            Min related tabs
+            <input
+              id="setting-related"
+              type="number"
+              min="1"
+              max="50"
+              step="1"
+              value="3"
+            />
+          </label>
+        </div>
+        <button id="save-settings-btn" class="btn-secondary full-width" type="button">
+          Save settings
+        </button>
+        <p id="settings-status" class="hint hidden">Settings saved.</p>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
