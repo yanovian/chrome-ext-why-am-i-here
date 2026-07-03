@@ -1,7 +1,7 @@
 {
   "name": "why-am-i-here",
   "description": "A tab-intent tracker that gently checks in when browsing drifts off course",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
