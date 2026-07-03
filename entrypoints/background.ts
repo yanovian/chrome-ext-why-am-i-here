@@ -250,8 +250,6 @@ export default defineBackground(() => {
     await migrateStorageIfNeeded();
     const { ensureStorageDefaults } = await import('../utils/app-state');
     await ensureStorageDefaults();
-    const settings = await getSettings();
-    await saveSettings(settings);
     await syncStoredSession();
   });
 

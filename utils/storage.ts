@@ -115,6 +115,14 @@ function normalizeActiveSession(
   return normalized;
 }
 
+export async function ensureSettingsExist(): Promise<void> {
+  await migrateLegacyStorageIfNeeded();
+  const stored = await readLocal<Partial<ExtensionSettings>>(KEYS.settings);
+  if (stored === undefined) {
+    await saveSettings(DEFAULT_SETTINGS);
+  }
+}
+
 export async function getSettings(): Promise<ExtensionSettings> {
   await migrateLegacyStorageIfNeeded();
   return mergeSettings(await readLocal<Partial<ExtensionSettings>>(KEYS.settings));

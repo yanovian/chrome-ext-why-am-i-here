@@ -1,9 +1,10 @@
 import './style.css';
-import { loadAppState } from '../../utils/app-state';
+import { loadAppState, saveAppSettings } from '../../utils/app-state';
 import { formatCheckInHint, getGoalStats } from '../../utils/goal-display';
 import { clearGoal, persistGoal, wakeBackgroundAndWait } from '../../utils/persist-goal';
+import { getSettings } from '../../utils/storage';
 import { refreshSessionFromOpenTabs } from '../../utils/tab-tracker';
-import { respondToCheckIn, updateSettings } from '../../utils/runtime-client';
+import { respondToCheckIn } from '../../utils/runtime-client';
 import { DEFAULT_SETTINGS, type IntentSession } from '../../utils/types';
 
 const checkinSection = document.querySelector<HTMLElement>('#checkin-section')!;
@@ -93,13 +94,9 @@ async function loadLiveSession(session: IntentSession): Promise<IntentSession> {
   }
 }
 
-async function renderNow() {
-  clearPopupError();
-
-  const state = await loadAppState();
-  applySettingsToInputs(state.settings);
-  void wakeBackgroundAndWait();
-
+async function renderGoalFromState(
+  state: Awaited<ReturnType<typeof loadAppState>>,
+) {
   if (state.pendingCheckIn) {
     checkinSection.classList.remove('hidden');
     checkinTitle.textContent = 'Time for a check-in';
@@ -115,6 +112,14 @@ async function renderNow() {
   }
 
   renderEmptyGoalForm();
+}
+
+async function renderNow() {
+  clearPopupError();
+
+  const state = await loadAppState();
+  void wakeBackgroundAndWait();
+  await renderGoalFromState(state);
 }
 
 function render() {
@@ -198,19 +203,34 @@ endSessionBtn.addEventListener('click', () => {
 });
 
 settingsToggle.addEventListener('click', () => {
-  setSettingsOpen(!settingsOpen);
+  const opening = !settingsOpen;
+  setSettingsOpen(opening);
+  if (opening) {
+    void getSettings().then(applySettingsToInputs);
+  }
 });
 
 saveSettingsBtn.addEventListener('click', () => {
   void (async () => {
-    await updateSettings({
-      checkInIntervalMinutes: Number(settingInterval.value),
-      tabCountThreshold: Number(settingThreshold.value),
-      minRelatedTabs: Number(settingRelated.value),
-    });
-    settingsStatus.classList.remove('hidden');
-    setTimeout(() => settingsStatus.classList.add('hidden'), 1800);
-    await render();
+    clearPopupError();
+    saveSettingsBtn.disabled = true;
+
+    try {
+      const saved = await saveAppSettings({
+        checkInIntervalMinutes: Number(settingInterval.value),
+        tabCountThreshold: Number(settingThreshold.value),
+        minRelatedTabs: Number(settingRelated.value),
+      });
+      applySettingsToInputs(saved);
+      settingsStatus.classList.remove('hidden');
+      setTimeout(() => settingsStatus.classList.add('hidden'), 1800);
+    } catch (error) {
+      showPopupError(
+        error instanceof Error ? error.message : 'Could not save settings.',
+      );
+    } finally {
+      saveSettingsBtn.disabled = false;
+    }
   })();
 });
 
@@ -223,8 +243,7 @@ browser.storage.onChanged.addListener((changes, area) => {
 
   if (
     'activeSession' in changes ||
-    'pendingCheckIn' in changes ||
-    'settings' in changes
+    'pendingCheckIn' in changes
   ) {
     clearTimeout(storageRenderTimer);
     storageRenderTimer = setTimeout(() => {
@@ -239,4 +258,7 @@ setInterval(() => {
   }
 }, 2_000);
 
-void render();
+void (async () => {
+  applySettingsToInputs(await getSettings());
+  await render();
+})();
