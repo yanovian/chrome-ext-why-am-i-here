@@ -53,8 +53,9 @@ Open the extension popup from the toolbar to set a goal. New tabs use Chrome's d
 |---------|-------------|
 | `pnpm dev` | Dev server with hot reload |
 | `pnpm build` | Production build |
-| `pnpm zip` | Create Chrome Web Store zip |
-| `pnpm test` | Run unit tests |
+    | `pnpm zip` | Create Chrome Web Store zip |
+    | `pnpm icons` | Regenerate extension icons from `scripts/generate-icons.py` |
+    | `pnpm test` | Run unit tests |
 | `pnpm typecheck` | TypeScript check |
 
 ## How it works (high level)
@@ -84,7 +85,7 @@ See [`_doc/release.md`](./_doc/release.md) for Chrome Web Store release steps an
 
 ## Logo
 
-The extension icon lives in `public/icon/` (generated from `assets/logo.png`).
+The extension icon is a bold **?** on teal — simple and readable at 16px. Icons live in `public/icon/`; regenerate with `pnpm icons` (see `scripts/generate-icons.py`).
 
 ## Tech stack
 
