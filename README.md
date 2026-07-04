@@ -2,6 +2,8 @@
 
 A privacy-first Chrome extension that helps you stay intentional while browsing.
 
+**[⬇️ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/why-am-i-here/oljicgnpidagkgpnpcdihcbdkimibefl)**
+
 Set a goal in the popup — for example **"AWS pricing"** — and the extension watches how you actually spend your time and tabs. When something looks off, it gives you a gentle nudge via the extension badge and popup (no system notifications).
 
 Built for people with ADHD, researchers, developers, and students who want help staying on task *and* noticing when a focused search has turned into a rabbit hole.
