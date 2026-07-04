@@ -1,0 +1,6 @@
+# Force contributors to pick a template so every issue is actionable.
+blank_issues_enabled: false
+contact_links:
+  - name: "📖 Docs & README"
+    url: https://github.com/yanovian/chrome-ext-why-am-i-here#readme
+    about: Setup, features, and how Why Am I Here? works.
