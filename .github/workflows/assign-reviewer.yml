@@ -1,0 +1,110 @@
+name: Assign reviewer
+
+# After CI finishes, put a maintainer on the pull request to review it — but
+# only when ALL of these are true:
+#   • the CI run was for a pull request (not a direct push to master),
+#   • CI (QA) passed, and
+#   • the PR is not a draft.
+#
+# Using `workflow_run` (instead of `pull_request`) means this runs with the base
+# repository's token, so it can assign reviewers even on pull requests from forks.
+# Note: this file must exist on the default branch (master) to take effect.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  assign:
+    # Only for successful CI runs that came from a pull request.
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request maintainer review
+        uses: actions/github-script@v7
+        env:
+          # Comma-separated GitHub usernames. Add maintainers here.
+          MAINTAINERS: "prazian"
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const { owner, repo } = context.repo;
+
+            // 1. Resolve the pull request this CI run belongs to.
+            let prNumber = run.pull_requests?.[0]?.number;
+            if (!prNumber) {
+              const { data } = await github.rest.pulls.list({
+                owner, repo, state: 'open',
+                head: `${run.head_repository.owner.login}:${run.head_branch}`,
+              });
+              prNumber = data[0]?.number;
+            }
+            if (!prNumber) {
+              core.info('No open PR found for this run; nothing to do.');
+              return;
+            }
+
+            // 2. Only act on open, non-draft PRs.
+            const { data: pr } = await github.rest.pulls.get({
+              owner, repo, pull_number: prNumber,
+            });
+            if (pr.state !== 'open') {
+              core.info(`PR #${prNumber} is ${pr.state}; skipping.`);
+              return;
+            }
+            if (pr.draft) {
+              core.info(`PR #${prNumber} is a draft; skipping until it's ready for review.`);
+              return;
+            }
+
+            // 3. Maintainers to put on the PR.
+            const maintainers = (process.env.MAINTAINERS || '')
+              .split(',').map((s) => s.trim()).filter(Boolean);
+            if (maintainers.length === 0) {
+              core.warning('No maintainers configured in MAINTAINERS.');
+              return;
+            }
+
+            // 4. Assign them (works even when the author is the only maintainer).
+            try {
+              await github.rest.issues.addAssignees({
+                owner, repo, issue_number: prNumber, assignees: maintainers,
+              });
+              core.info(`Assigned: ${maintainers.join(', ')}`);
+            } catch (e) {
+              core.warning(`Could not assign: ${e.message}`);
+            }
+
+            // 5. Request review from maintainers who aren't the PR author and
+            //    haven't already been asked or already reviewed. (GitHub does not
+            //    allow requesting a review from the author themselves.)
+            const requested = new Set((pr.requested_reviewers || []).map((u) => u.login));
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner, repo, pull_number: prNumber,
+            });
+            const reviewed = new Set(reviews.map((r) => r.user?.login));
+            const toRequest = maintainers.filter(
+              (m) => m !== pr.user.login && !requested.has(m) && !reviewed.has(m),
+            );
+
+            if (toRequest.length === 0) {
+              core.info(
+                'No new reviewers to request (author is the only maintainer, or they were already requested/have reviewed).',
+              );
+              return;
+            }
+            try {
+              await github.rest.pulls.requestReviewers({
+                owner, repo, pull_number: prNumber, reviewers: toRequest,
+              });
+              core.info(`Requested review from: ${toRequest.join(', ')}`);
+            } catch (e) {
+              core.warning(`Could not request review: ${e.message}`);
+            }

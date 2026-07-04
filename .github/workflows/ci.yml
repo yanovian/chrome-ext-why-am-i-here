@@ -2,9 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [master, main]
+    branches: [master]
   pull_request:
-    branches: [master, main]
+    branches: [master]
+    # `ready_for_review` re-runs QA when a draft is marked ready, which
+    # re-triggers the Assign reviewer workflow.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   test:
