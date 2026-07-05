@@ -1,5 +1,8 @@
 # Why Am I Here?
 
+[![CI](https://github.com/yanovian/chrome-ext-why-am-i-here/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/yanovian/chrome-ext-why-am-i-here/actions/workflows/ci.yml)
+[![Last contribution](https://img.shields.io/github/last-commit/yanovian/chrome-ext-why-am-i-here?branch=master&label=last%20contribution)](https://github.com/yanovian/chrome-ext-why-am-i-here/commits/master)
+
 A privacy-first Chrome extension that helps you stay intentional while browsing.
 
 **[⬇️ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/why-am-i-here/oljicgnpidagkgpnpcdihcbdkimibefl)**
