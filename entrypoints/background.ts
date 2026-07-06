@@ -287,19 +287,29 @@ export default defineBackground(() => {
       return;
     }
 
-    if (!('activeSession' in changes)) {
+    if (!('activeSession' in changes) && !('pendingCheckIn' in changes)) {
       return;
     }
 
     enqueueSessionTask(async () => {
-      const change = changes.activeSession;
-      if (!change?.newValue) {
+      if ('activeSession' in changes && !changes.activeSession?.newValue) {
         await clearTickAlarm();
         await updateBadge(false);
         return;
       }
 
-      await syncStoredSession();
+      if ('activeSession' in changes && changes.activeSession?.newValue) {
+        await syncStoredSession();
+        return;
+      }
+
+      if ('pendingCheckIn' in changes && !changes.pendingCheckIn?.newValue) {
+        const session = await getActiveSession();
+        if (!session) {
+          await clearTickAlarm();
+          await updateBadge(false);
+        }
+      }
     });
   });
 

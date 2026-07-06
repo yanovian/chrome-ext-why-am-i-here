@@ -27,13 +27,15 @@ const distractedMinutes = document.querySelector<HTMLElement>('#distracted-minut
 const relatedCount = document.querySelector<HTMLElement>('#related-count')!;
 const unrelatedCount = document.querySelector<HTMLElement>('#unrelated-count')!;
 const activeHint = document.querySelector<HTMLElement>('#active-hint')!;
-const endSessionBtn = document.querySelector<HTMLButtonElement>('#end-session-btn')!;
+const stopGoalBtn = document.querySelector<HTMLButtonElement>('#stop-goal-btn')!;
 
 const goalFormLabel = document.querySelector<HTMLElement>('#goal-form-label')!;
+const goalFormHint = document.querySelector<HTMLElement>('#goal-form-hint')!;
 const goalForm = document.querySelector<HTMLFormElement>('#goal-form')!;
 const popupIntent = document.querySelector<HTMLInputElement>('#popup-intent')!;
 const popupError = document.querySelector<HTMLElement>('#popup-error')!;
 const popupStartBtn = document.querySelector<HTMLButtonElement>('#popup-start-btn')!;
+const stopGoalFormBtn = document.querySelector<HTMLButtonElement>('#stop-goal-form-btn')!;
 
 const settingsToggle = document.querySelector<HTMLButtonElement>('#settings-toggle')!;
 const settingsSection = document.querySelector<HTMLElement>('#settings-section')!;
@@ -85,6 +87,8 @@ function renderEmptyGoalForm() {
   currentGoalSection.classList.add('hidden');
   goalFormLabel.textContent = 'What are you looking for?';
   popupStartBtn.textContent = 'Set goal';
+  goalFormHint.textContent = 'Press Enter to start tracking immediately.';
+  stopGoalFormBtn.classList.add('hidden');
   lastRenderedSessionId = null;
 }
 
@@ -102,6 +106,9 @@ function renderCurrentGoal(
   activeHint.textContent = formatCheckInHint(session, settings);
   goalFormLabel.textContent = 'Set a new goal';
   popupStartBtn.textContent = 'Replace goal';
+  goalFormHint.textContent =
+    'Replace your goal, or stop tracking now — no need to wait for a nudge.';
+  stopGoalFormBtn.classList.remove('hidden');
   lastRenderedSessionId = session.id;
 }
 
@@ -173,6 +180,28 @@ function render() {
   return renderInFlight;
 }
 
+async function handleStopGoal() {
+  clearPopupError();
+  stopGoalBtn.disabled = true;
+  stopGoalFormBtn.disabled = true;
+
+  try {
+    await clearGoal();
+    popupIntent.value = '';
+    setSettingsOpen(false);
+    renderEmptyGoalForm();
+    checkinSection.classList.add('hidden');
+    await render();
+  } catch (error) {
+    showPopupError(
+      error instanceof Error ? error.message : 'Could not stop the goal.',
+    );
+  } finally {
+    stopGoalBtn.disabled = false;
+    stopGoalFormBtn.disabled = false;
+  }
+}
+
 async function handleSetGoal() {
   clearPopupError();
   const intent = popupIntent.value.trim();
@@ -221,8 +250,12 @@ dismissBtn.addEventListener('click', () => {
   void respondToCheckIn('dismissed').then(() => render());
 });
 
-endSessionBtn.addEventListener('click', () => {
-  void clearGoal().then(() => render());
+stopGoalBtn.addEventListener('click', () => {
+  void handleStopGoal();
+});
+
+stopGoalFormBtn.addEventListener('click', () => {
+  void handleStopGoal();
 });
 
 settingsToggle.addEventListener('click', () => {

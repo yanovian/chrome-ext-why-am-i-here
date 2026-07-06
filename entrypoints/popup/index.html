@@ -58,7 +58,9 @@
           </div>
         </div>
         <p class="hint" id="active-hint"></p>
-        <button id="end-session-btn" class="btn-ghost" type="button">End goal</button>
+        <button id="stop-goal-btn" class="btn-secondary full-width stop-goal-btn" type="button">
+          Stop goal
+        </button>
       </section>
 
       <section id="goal-section" class="panel">
@@ -75,7 +77,14 @@
           <button id="popup-start-btn" class="btn-primary" type="submit">
             Set goal
           </button>
-          <p class="hint">Press Enter to start tracking immediately.</p>
+          <button
+            id="stop-goal-form-btn"
+            class="btn-ghost full-width stop-goal-btn hidden"
+            type="button"
+          >
+            Stop goal without replacing
+          </button>
+          <p class="hint" id="goal-form-hint">Press Enter to start tracking immediately.</p>
         </form>
       </section>
 

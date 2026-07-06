@@ -223,6 +223,15 @@ button {
   color: var(--danger);
 }
 
+.stop-goal-btn {
+  margin-top: 10px;
+}
+
+.stop-goal-btn:hover {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+}
+
 .hint {
   margin: 8px 0 0;
   font-size: 12px;

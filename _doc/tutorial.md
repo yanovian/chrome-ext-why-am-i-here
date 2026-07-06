@@ -4,6 +4,8 @@ This helps you work on **one thing at a time** — stay focused on it, and notic
 
 If your goal changes, just type a new one and press **Set goal** (or **Replace goal**). No need to end the old one first.
 
+To stop tracking without setting a new goal, tap **Stop goal** in the popup — you don't have to wait for a nudge or timer.
+
 Short guide. Three steps.
 
 ## 1. Set a goal

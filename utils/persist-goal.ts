@@ -88,10 +88,13 @@ export async function clearGoal(): Promise<void> {
   wakeBackground();
 }
 
+/** Ask the background worker to sync after storage writes. */
 function wakeBackground(): void {
-  void browser.runtime.sendMessage({ type: 'syncSession' }).catch(() => {
-    // Storage is already updated. Background will sync on next wake.
-  });
+  void browser.runtime
+    .sendMessage({ type: 'syncSession' })
+    .catch(() => {
+      // Storage is already updated. Background will sync on next wake.
+    });
 }
 
 export async function wakeBackgroundAndWait(): Promise<void> {
