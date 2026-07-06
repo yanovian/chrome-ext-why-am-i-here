@@ -7,6 +7,7 @@ Updates for people who use Why Am I Here? Newest first.
 - **Getting-started tutorial** — step-by-step guide for setting a goal, browsing, and responding to nudges.
 - **Privacy policy** published — confirms everything stays on your device.
 - Now available on the **Chrome Web Store**.
+- User can stop goal before it reaches timer notification.
 
 ## 1.2.0
 
