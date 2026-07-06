@@ -1,4 +1,4 @@
-# Why Am I Here?
+# <img src="./public/icon/48.png" alt="Why Am I Here? icon" width="38" height="38" valign="middle"> Why Am I Here?
 
 [![CI](https://github.com/yanovian/chrome-ext-why-am-i-here/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/yanovian/chrome-ext-why-am-i-here/actions/workflows/ci.yml)
 [![Last contribution](https://img.shields.io/github/last-commit/yanovian/chrome-ext-why-am-i-here?branch=master&label=last%20contribution)](https://github.com/yanovian/chrome-ext-why-am-i-here/commits/master)
