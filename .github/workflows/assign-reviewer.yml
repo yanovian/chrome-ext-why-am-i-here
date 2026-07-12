@@ -1,18 +1,13 @@
 name: Assign reviewer
 
-# After CI finishes, put a maintainer on the pull request to review it — but
-# only when ALL of these are true:
-#   • the CI run was for a pull request (not a direct push to master),
-#   • CI (QA) passed, and
-#   • the PR is not a draft.
-#
-# Using `workflow_run` (instead of `pull_request`) means this runs with the base
-# repository's token, so it can assign reviewers even on pull requests from forks.
-# Note: this file must exist on the default branch (master) to take effect.
+# Assign a maintainer after CI passes on a pull request. Uses
+# `pull_request_target` (not `workflow_run`) so this workflow is triggered only
+# by PR activity — never by pushes to master — while still running with the base
+# repository token (needed for fork PRs).
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  pull_request_target:
+    branches: [master]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -21,12 +16,49 @@ permissions:
 
 jobs:
   assign:
-    # Only for successful CI runs that came from a pull request.
-    if: >-
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for CI
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const { owner, repo } = context.repo;
+            const sha = pr.head.sha;
+            const maxAttempts = 60;
+            const delayMs = 30_000;
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+              const { data } = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: 'ci.yml',
+                head_sha: sha,
+                event: 'pull_request',
+              });
+
+              const run = data.workflow_runs
+                .filter((r) => r.event === 'pull_request')
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+
+              if (!run) {
+                core.info(`CI not started yet (attempt ${attempt}/${maxAttempts})`);
+              } else if (run.status !== 'completed') {
+                core.info(`CI in progress (run ${run.id}, attempt ${attempt}/${maxAttempts})`);
+              } else if (run.conclusion === 'success') {
+                core.info(`CI passed (run ${run.id})`);
+                return;
+              } else {
+                core.info(`CI ${run.conclusion} (run ${run.id}); skipping assign.`);
+                return;
+              }
+
+              await new Promise((resolve) => setTimeout(resolve, delayMs));
+            }
+
+            core.warning('Timed out waiting for CI; skipping assign.');
+
       - name: Request maintainer review
         uses: actions/github-script@v7
         env:
@@ -34,24 +66,9 @@ jobs:
           MAINTAINERS: "prazian"
         with:
           script: |
-            const run = context.payload.workflow_run;
+            const prNumber = context.payload.pull_request.number;
             const { owner, repo } = context.repo;
 
-            // 1. Resolve the pull request this CI run belongs to.
-            let prNumber = run.pull_requests?.[0]?.number;
-            if (!prNumber) {
-              const { data } = await github.rest.pulls.list({
-                owner, repo, state: 'open',
-                head: `${run.head_repository.owner.login}:${run.head_branch}`,
-              });
-              prNumber = data[0]?.number;
-            }
-            if (!prNumber) {
-              core.info('No open PR found for this run; nothing to do.');
-              return;
-            }
-
-            // 2. Only act on open, non-draft PRs.
             const { data: pr } = await github.rest.pulls.get({
               owner, repo, pull_number: prNumber,
             });
@@ -64,7 +81,6 @@ jobs:
               return;
             }
 
-            // 3. Maintainers to put on the PR.
             const maintainers = (process.env.MAINTAINERS || '')
               .split(',').map((s) => s.trim()).filter(Boolean);
             if (maintainers.length === 0) {
@@ -72,7 +88,6 @@ jobs:
               return;
             }
 
-            // 4. Assign them (works even when the author is the only maintainer).
             try {
               await github.rest.issues.addAssignees({
                 owner, repo, issue_number: prNumber, assignees: maintainers,
@@ -82,9 +97,6 @@ jobs:
               core.warning(`Could not assign: ${e.message}`);
             }
 
-            // 5. Request review from maintainers who aren't the PR author and
-            //    haven't already been asked or already reviewed. (GitHub does not
-            //    allow requesting a review from the author themselves.)
             const requested = new Set((pr.requested_reviewers || []).map((u) => u.login));
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner, repo, pull_number: prNumber,
