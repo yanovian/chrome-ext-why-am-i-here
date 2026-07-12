@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: var avsiktlig när du surfar",
+  "description": "Ett gratis Chrome-tillägg. Sätt ett surfmål, följ flikanpassning och aktiv tid, och få milda påminnelser om distraktion och kaninhål. Privat och lokalt.",
+  "ogImageAlt": "Why Am I Here? — tilläggsikon med turkos frågetecken",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Integritetspolicy för Why Am I Here?",
+    "description": "Hur Why Am I Here? hanterar dina data. Endast lokalt, inga konton, inget moln. Bara fliktitlar och URL:er medan ett mål är aktivt."
+  }
+}

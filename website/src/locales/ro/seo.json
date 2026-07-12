@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: rămâi intenționat în timp ce navighezi",
+  "description": "Extensie Chrome gratuită. Stabilește un obiectiv de navigare, urmărește alinierea filelor și timpul activ, și primește memento-uri blânde pentru distragere și vizuină. Privată și locală.",
+  "ogImageAlt": "Why Am I Here? — pictogramă extensie cu semn de întrebare turquoise",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Politica de confidențialitate Why Am I Here?",
+    "description": "Cum gestionează Why Am I Here? datele tale. Doar local, fără conturi, fără cloud. Doar titluri și URL-uri ale filelor cât timp obiectivul e activ."
+  }
+}

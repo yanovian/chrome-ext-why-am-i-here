@@ -2,6 +2,11 @@ node_modules/
 .output/
 .wxt/
 dist/
+website/dist/
+website/public/
+website/node_modules/
+__pycache__/
+scripts/__pycache__/
 *.zip
 .DS_Store
 coverage/

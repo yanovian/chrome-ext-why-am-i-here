@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here? : restez intentionnel pendant votre navigation",
+  "description": "Une extension Chrome gratuite. Fixez un objectif de navigation, suivez l'alignement des onglets et le temps actif, et recevez de doux rappels de distraction ou de terrier. Privée et locale.",
+  "ogImageAlt": "Why Am I Here? — icône d'extension avec point d'interrogation bleu-vert",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Politique de confidentialité de Why Am I Here?",
+    "description": "Comment Why Am I Here? traite vos données. Local uniquement, pas de comptes ni de cloud. Titres et URL des onglets uniquement tant qu'un objectif est actif."
+  }
+}

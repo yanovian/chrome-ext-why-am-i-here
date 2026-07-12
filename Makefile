@@ -1,8 +1,13 @@
 .PHONY: help install prepare dev dev-firefox build build-firefox \
 	zip zip-firefox icons test test-watch typecheck check package clean \
+	website-install website-dev website-build website-preview website-clean \
+	website-lint-i18n website-lint-i18n-fix website-og-images \
 	release-patch release-minor release-major
 
 PNPM ?= pnpm
+WEBSITE ?= website
+# Shortest GitHub Pages path for yanovian/chrome-ext-why-am-i-here (repo name, no extra folder).
+GITHUB_PAGES_BASE ?= /chrome-ext-why-am-i-here/
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make <target>\n\nTargets:\n"} \
@@ -50,6 +55,30 @@ package: zip zip-firefox ## Build and zip for Chrome and Firefox
 
 clean: ## Remove build output
 	rm -rf .output
+
+website-install: ## Install marketing site dependencies (website/)
+	cd $(WEBSITE) && $(PNPM) install
+
+website-dev: ## Marketing site dev server (localhost, hot reload, base /)
+	cd $(WEBSITE) && $(PNPM) dev
+
+website-build: ## Production build for GitHub Pages (base $(GITHUB_PAGES_BASE))
+	cd $(WEBSITE) && VITE_BASE_PATH=$(GITHUB_PAGES_BASE) $(PNPM) build
+
+website-preview: website-build ## Preview production build at http://localhost:4173$(GITHUB_PAGES_BASE)
+	cd $(WEBSITE) && $(PNPM) exec vite preview --host --base $(GITHUB_PAGES_BASE)
+
+website-clean: ## Remove marketing site dist and copied public assets
+	rm -rf $(WEBSITE)/dist $(WEBSITE)/public
+
+website-lint-i18n: ## Check website locale JSON keys match en (no missing, no extra)
+	cd $(WEBSITE) && $(PNPM) lint-i18n
+
+website-lint-i18n-fix: ## Add missing locale keys as "" (warns per locale/key)
+	cd $(WEBSITE) && $(PNPM) lint-i18n-fix
+
+website-og-images: ## Regenerate committed OG share images (static/og/*.png)
+	cd $(WEBSITE) && $(PNPM) og-images
 
 release-patch: check ## Bump patch version, tag vX.Y.Z, push (triggers GitHub release)
 	$(PNPM) version patch -m "Release v%s"

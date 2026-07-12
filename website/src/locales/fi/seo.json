@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: pysy tarkoituksellisena selatessasi",
+  "description": "Ilmainen Chrome-laajennus. Aseta selaustavoite, seuraa välilehtien yhtenäisyyttä ja aktiivista aikaa, ja saa lempeitä häiriö- ja kaninkolomuistutuksia. Yksityinen ja paikallinen.",
+  "ogImageAlt": "Why Am I Here? — laajennuskuvake turkoosilla kysymysmerkillä",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Why Am I Here? -tietosuojakäytäntö",
+    "description": "Miten Why Am I Here? käsittelee tietojasi. Vain paikallisesti, ei tilejä, ei pilveä. Vain välilehtien otsikot ja URL-osoitteet, kun tavoite on aktiivinen."
+  }
+}

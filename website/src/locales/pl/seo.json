@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: zachowaj intencję podczas przeglądania",
+  "description": "Darmowe rozszerzenie Chrome. Ustal cel przeglądania, śledź zgodność kart i aktywny czas, i otrzymuj delikatne przypomnienia o rozproszeniu i króliczej norze. Prywatne i lokalne.",
+  "ogImageAlt": "Why Am I Here? — ikona rozszerzenia z turkusowym znakiem zapytania",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Polityka prywatności Why Am I Here?",
+    "description": "Jak Why Am I Here? obsługuje Twoje dane. Tylko lokalnie, bez kont i chmury. Tylko tytuły i adresy URL kart, gdy cel jest aktywny."
+  }
+}

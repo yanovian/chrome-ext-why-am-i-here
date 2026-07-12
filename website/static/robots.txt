@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yanovian.github.io/chrome-ext-why-am-i-here/sitemap.xml

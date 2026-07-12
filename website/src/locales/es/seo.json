@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: mantén la intención mientras navegas",
+  "description": "Una extensión gratuita para Chrome. Define un objetivo de navegación, sigue la alineación de pestañas y el tiempo activo, y recibe avisos suaves por distracción o madriguera. Privada y local.",
+  "ogImageAlt": "Why Am I Here? — icono de extensión con signo de interrogación verde azulado",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Política de privacidad de Why Am I Here?",
+    "description": "Cómo Why Am I Here? trata tus datos. Solo en el dispositivo, sin cuentas ni nube. Solo títulos y URL de pestañas mientras hay un objetivo activo."
+  }
+}

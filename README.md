@@ -7,7 +7,7 @@ A privacy-first Chrome extension that helps you stay intentional while browsing.
 
 > **[⬇️ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/why-am-i-here/oljicgnpidagkgpnpcdihcbdkimibefl)**
 >
-> **[How to use "Why Am I Here?" →](./_doc/tutorial.md)**
+> **[Website →](https://yanovian.github.io/chrome-ext-why-am-i-here/)** · **[How to use "Why Am I Here?" →](./_doc/tutorial.md)**
 
 Set a goal in the popup — for example **"AWS pricing"** — and the extension watches how you actually spend your time and tabs. When something looks off, it gives you a gentle nudge via the extension badge and popup (no system notifications).
 
@@ -88,6 +88,23 @@ Open the extension popup from the toolbar to set a goal. New tabs use Chrome's d
 - At least 3 on-goal tabs
 
 See [`_doc/architecture.md`](./_doc/architecture.md) for a detailed technical overview.
+
+## Website
+
+Source in [`website/`](./website/). Published at **https://yanovian.github.io/chrome-ext-why-am-i-here/** (shortest path for this repo: org pages + repo name only).
+
+| Command | Description |
+|---------|-------------|
+| `make website-install` | Install website dependencies |
+| `make website-dev` | Local dev with hot reload (`http://localhost:5173/`) |
+| `make website-build` | Production build for GitHub Pages |
+| `make website-preview` | Build and preview the Pages URL locally (`http://localhost:4173/chrome-ext-why-am-i-here/`) |
+| `make website-clean` | Remove website `dist/` and copied assets |
+| `make website-lint-i18n` | Check locale JSON keys match `en/` |
+| `make website-lint-i18n-fix` | Add missing locale keys as `""` |
+| `make website-og-images` | Regenerate committed OG share images (`static/og/*.png`) |
+
+Deploys automatically on push to `master` via [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) when `website/`, extension icons, `PRIVACY.md`, or that workflow change. Enable **Settings → Pages → GitHub Actions** once on the repo.
 
 ## Publishing
 

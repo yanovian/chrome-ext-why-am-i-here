@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?：意図を持ってブラウジング",
+  "description": "無料のChrome拡張機能。ブラウジング目標を設定し、タブの整合とアクティブ時間を追跡。気が散るときとうさぎの穴のやさしいリマインダー。プライベートでローカル。",
+  "ogImageAlt": "Why Am I Here? — ティール色の疑問符拡張機能アイコン",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Why Am I Here?のプライバシーポリシー",
+    "description": "Why Am I Here?がデータをどう扱うか。ローカルのみ、アカウント・クラウドなし。目標が有効な間のみタブのタイトルとURL。"
+  }
+}

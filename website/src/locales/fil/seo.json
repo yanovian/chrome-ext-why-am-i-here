@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: manatiling may layunin habang nagba-browse",
+  "description": "Libreng Chrome extension. Magtakda ng layunin sa pagba-browse, subaybayan ang alignment ng tab at aktibong oras, at makatanggap ng banayad na paalala sa distraction at rabbit hole. Pribado at lokal.",
+  "ogImageAlt": "Why Am I Here? — icon ng extension na may teal na tandang pananong",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Privacy policy para sa Why Am I Here?",
+    "description": "Paano pinangangasiwaan ng Why Am I Here? ang iyong data. Lokal lang, walang account, walang cloud. Title at URL ng tab lang habang aktibo ang layunin."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: mantingues la intenció mentre navegues",
+  "description": "Una extensió gratuïta de Chrome. Defineix un objectiu de navegació, segueix l'alineació de pestanyes i el temps actiu, i rep avisos suaus de distracció i cau de conill. Privada i local.",
+  "ogImageAlt": "Why Am I Here? — icona d'extensió amb signe d'interrogació verd blavós",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Política de privadesa de Why Am I Here?",
+    "description": "Com Why Am I Here? tracta les teves dades. Només local, sense comptes ni núvol. Només títols i URL de pestanyes mentre hi ha un objectiu actiu."
+  }
+}

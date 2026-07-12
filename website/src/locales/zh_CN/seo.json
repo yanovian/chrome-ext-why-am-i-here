@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?：有意识地浏览",
+  "description": "免费 Chrome 扩展。设定浏览目标，追踪标签页匹配与活跃时间，获得分心与兔子洞的温和提醒。私密且本地。",
+  "ogImageAlt": "Why Am I Here? — 青绿色问号扩展图标",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Why Am I Here? 隐私政策",
+    "description": "Why Am I Here? 如何处理你的数据。仅本地，无账户，无云端。仅在目标活跃时读取标签页标题和 URL。"
+  }
+}

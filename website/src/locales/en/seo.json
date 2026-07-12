@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: stay intentional while you browse",
+  "description": "A free Chrome extension. Set a browsing goal, track tab alignment and active time, and get gentle distraction and rabbit-hole nudges. Private and local.",
+  "ogImageAlt": "Why Am I Here? — a teal question mark extension icon",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Privacy Policy for Why Am I Here?",
+    "description": "How Why Am I Here? handles your data. Local only, no accounts, no cloud. Tab titles and URLs only while a goal is active."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: zostaňte zámerní pri prehliadaní",
+  "description": "Bezplatné rozšírenie Chrome. Nastavte cieľ prehliadania, sledujte súlad kariet a aktívny čas a dostávajte jemné pripomienky rozptýlenia a králičej nory. Súkromné a lokálne.",
+  "ogImageAlt": "Why Am I Here? — ikona rozšírenia s tyrkysovým otáznikom",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Zásady ochrany súkromia Why Am I Here?",
+    "description": "Ako Why Am I Here? nakladá s vašimi údajmi. Iba lokálne, bez účtov a cloudu. Iba titulky a URL kariet, kým je cieľ aktívny."
+  }
+}

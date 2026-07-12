@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: zielgerichtet surfen",
+  "description": "Eine kostenlose Chrome-Erweiterung. Setze ein Surf-Ziel, verfolge Tab-Ausrichtung und aktive Zeit, und erhalte sanfte Hinweise bei Ablenkung und Kaninchenbau. Privat und lokal.",
+  "ogImageAlt": "Why Am I Here? — türkisfarbenes Fragezeichen-Erweiterungssymbol",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Datenschutzrichtlinie für Why Am I Here?",
+    "description": "Wie Why Am I Here? mit deinen Daten umgeht. Nur lokal, keine Konten, keine Cloud. Nur Tab-Titel und URLs, solange ein Ziel aktiv ist."
+  }
+}

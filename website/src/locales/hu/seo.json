@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: maradj szándékos böngészés közben",
+  "description": "Ingyenes Chrome-bővítmény. Állíts be böngészési célt, kövesd a lap-összhangot és az aktív időt, és kapj finom emlékeztetőket figyelemelterelésről és nyúlüregről. Privát és helyi.",
+  "ogImageAlt": "Why Am I Here? — türkiz kérdőjeles bővítményikon",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Why Am I Here? adatvédelmi irányelvek",
+    "description": "Hogyan kezeli a Why Am I Here? az adataidat. Csak helyben, nincs fiók, nincs felhő. Csak lapcímek és URL-ek, amíg a cél aktív."
+  }
+}

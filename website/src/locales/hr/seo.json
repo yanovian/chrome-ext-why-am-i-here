@@ -1,0 +1,11 @@
+{
+  "title": "Why Am I Here?: ostanite namjerni dok pregledavate",
+  "description": "Besplatno Chrome proširenje. Postavite cilj pregledavanja, pratite usklađenost kartica i aktivno vrijeme, i primajte nježne podsjetnike na ometanje i zečju rupu. Privatno i lokalno.",
+  "ogImageAlt": "Why Am I Here? — ikona proširenja s tirkiznim upitnikom",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
+  "privacy": {
+    "title": "Pravila privatnosti za Why Am I Here?",
+    "description": "Kako Why Am I Here? obrađuje vaše podatke. Samo lokalno, bez računa i oblaka. Samo naslovi i URL-ovi kartica dok je cilj aktivan."
+  }
+}

@@ -54,3 +54,34 @@ jobs:
           name: why-am-i-here-chrome-${{ github.sha }}
           path: ${{ steps.chrome_zip.outputs.file }}
           if-no-files-found: error
+
+  website:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: website/pnpm-lock.yaml
+
+      - name: Install website dependencies
+        working-directory: website
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint website i18n
+        working-directory: website
+        run: pnpm lint-i18n
+
+      - name: Build website
+        working-directory: website
+        env:
+          VITE_BASE_PATH: /chrome-ext-why-am-i-here/
+        run: pnpm build
