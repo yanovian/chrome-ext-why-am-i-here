@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --experimental-strip-types
 /**
  * After `vite build`, write static HTML shells per locale and route so view-source
  * and no-JS crawlers see localized <title> and meta tags on GitHub Pages.
@@ -23,7 +23,7 @@ function siteOgImageUrl(locale) {
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
-const PAGES = ['', 'privacy'];
+import { PRERENDER_PAGES } from '../site-pages.ts';
 const RTL_LOCALES = new Set(['ar', 'fa']);
 
 const basePath = process.env.VITE_BASE_PATH ?? '/';
@@ -94,17 +94,23 @@ function singleLineMeta(text) {
 }
 
 function pageMeta(seo, page) {
-  if (page === 'privacy') {
+  if (!page) {
     return {
-      title: seo.privacy.title,
-      description: seo.privacy.description,
-      ogType: 'article',
+      title: singleLineMeta(seo.title),
+      description: singleLineMeta(seo.description),
+      ogType: 'website',
     };
   }
+
+  const meta = seo[page];
+  if (!meta?.title || !meta?.description) {
+    throw new Error(`Missing seo.${page}.title or seo.${page}.description`);
+  }
+
   return {
-    title: singleLineMeta(seo.title),
-    description: singleLineMeta(seo.description),
-    ogType: 'website',
+    title: meta.title,
+    description: meta.description,
+    ogType: 'article',
   };
 }
 
@@ -210,7 +216,7 @@ function main() {
 
   for (const locale of locales) {
     const seo = loadSeo(locale);
-    for (const page of PAGES) {
+    for (const page of PRERENDER_PAGES) {
       const html = buildHtml({ locale, page, seo, scripts, styles, locales });
       const out = outputPath(locale, page);
       mkdirSync(dirname(out), { recursive: true });

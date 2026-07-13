@@ -9,7 +9,7 @@
     "dev": "vite",
     "lint-i18n": "node scripts/lint-i18n.mjs",
     "lint-i18n-fix": "node scripts/lint-i18n.mjs --fix",
-    "build": "pnpm lint-i18n && tsc --noEmit && vite build && node scripts/prerender-locale-html.mjs",
+    "build": "pnpm lint-i18n && tsc --noEmit && vite build && node --experimental-strip-types scripts/prerender-locale-html.mjs",
     "preview": "vite preview --host --base /chrome-ext-why-am-i-here/"
   },
   "dependencies": {

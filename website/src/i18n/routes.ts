@@ -3,10 +3,9 @@ import {
   type WebsiteLocale,
   isWebsiteLocale,
 } from '@/i18n/locales';
+import { isSitePage, type SitePage } from '../../site-pages';
 
-export type SitePage = '' | 'privacy';
-
-const PAGE_SEGMENTS = new Set<SitePage>(['', 'privacy']);
+export type { SitePage, SubPageId } from '../../site-pages';
 
 export function localizedPath(
   locale: WebsiteLocale,
@@ -42,16 +41,12 @@ export function parseSitePath(pathname: string, basename = ''): {
   }
 
   const pageSegment = parts[0] ?? '';
-  const page = PAGE_SEGMENTS.has(pageSegment as SitePage)
-    ? (pageSegment as SitePage)
-    : '';
+  const page = isSitePage(pageSegment) ? pageSegment : '';
 
   return { locale, page };
 }
 
-export function isSitePage(value: string): value is SitePage {
-  return PAGE_SEGMENTS.has(value as SitePage);
-}
+export { isSitePage };
 
 export function allSiteLocales(): readonly WebsiteLocale[] {
   return WEBSITE_LOCALES;

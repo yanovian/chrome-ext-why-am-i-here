@@ -5,6 +5,7 @@ import {
   YANOVIAN_LLC_URL,
 } from '../../site-meta';
 import { GITHUB_URL } from '@/content';
+import { SiteLogo } from '@/components/SiteLogo';
 import { useLocalizedPath } from '@/hooks/useSiteLocale';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -17,7 +18,7 @@ export function Footer() {
     <footer className="footer">
       <div className="container footer__inner">
         <div className="footer__brand">
-          <img src={`${import.meta.env.BASE_URL}icon-48.png`} width={32} height={32} alt="" />
+          <SiteLogo size="md" />
           <span>{SITE_NAME}</span>
         </div>
         <p className="footer__tagline">{t('footerTagline')}</p>

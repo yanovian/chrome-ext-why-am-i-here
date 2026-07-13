@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SiteLogo } from '@/components/SiteLogo';
 
 const SCENES = [
   { id: 'goal', goal: 'AWS pricing', onGoal: 12, distracted: 2, related: 3, unrelated: 1, nudge: false },
@@ -31,7 +32,7 @@ export function HeroPopupShowcase() {
       <div className="popup-showcase__glow" />
       <div className={`popup-showcase__card${leaving ? ' popup-showcase__card--leave' : ''}`}>
         <header className="popup-showcase__header">
-          <img src={`${import.meta.env.BASE_URL}icon-48.png`} width={32} height={32} alt="" />
+          <SiteLogo size="md" />
           <div>
             <strong>Why Am I Here?</strong>
             <span>{t('heroEyebrow')}</span>

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { SiteLogo } from '@/components/SiteLogo';
 import { Button } from '@/components/ui';
 import { HeroPopupShowcase } from '@/components/HeroPopupShowcase';
 import { CHROME_STORE_URL } from '@/content';
@@ -11,7 +12,7 @@ export function Hero() {
       <div className="hero__glow" aria-hidden="true" />
       <div className="container hero__grid">
         <div className="hero__copy">
-          <img className="hero__logo" src={`${import.meta.env.BASE_URL}icon.png`} width={72} height={72} alt="" />
+          <SiteLogo size="lg" className="hero__logo" />
           <p className="eyebrow">{t('heroEyebrow')}</p>
           <h1>
             {t('heroTitle')}

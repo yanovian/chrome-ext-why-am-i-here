@@ -22,5 +22,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "site-meta.ts", "src/vite-env.d.ts"]
+  "include": ["src", "site-meta.ts", "site-pages.ts", "src/vite-env.d.ts"]
 }
