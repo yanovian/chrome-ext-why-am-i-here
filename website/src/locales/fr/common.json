@@ -2,5 +2,11 @@
   "footerTagline": "Restez intentionnel pendant votre navigation.",
   "footerCredit": "Créé par <yanovian>Yanovian LLC</yanovian> et <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Code sur GitHub",
-  "privacyLink": "Politique de confidentialité"
+  "privacyLink": "Politique de confidentialité",
+  "relatedEyebrow": "Plus de nous",
+  "relatedTitle": "Nos autres extensions Chrome",
+  "relatedAllProjects": "Voir tout ce que nous avons créé →",
+  "relatedTabbyDesc": "Un chat qui vit dans votre navigateur.",
+  "relatedWhyAmIHereDesc": "Restez intentionnel pendant votre navigation.",
+  "relatedBreadcrumbDesc": "Ne perdez jamais ce que vous apprenez en ligne."
 }

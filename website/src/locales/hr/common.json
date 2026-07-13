@@ -2,5 +2,11 @@
   "footerTagline": "Ostanite namjerni dok pregledavate.",
   "footerCredit": "Izradio <yanovian>Yanovian LLC</yanovian> i <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Izvorni kod na GitHubu",
-  "privacyLink": "Pravila privatnosti"
+  "privacyLink": "Pravila privatnosti",
+  "relatedEyebrow": "Više od nas",
+  "relatedTitle": "Naše druge Chrome ekstenzije",
+  "relatedAllProjects": "Pogledajte sve što smo izgradili →",
+  "relatedTabbyDesc": "Mačka koja živi u vašem pregledniku.",
+  "relatedWhyAmIHereDesc": "Ostanite namjerni dok pregledavate.",
+  "relatedBreadcrumbDesc": "Nikada ne izgubite ono što učite online."
 }

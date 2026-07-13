@@ -1,10 +1,25 @@
-/** Public site URL without trailing slash (GitHub Pages). */
-export const SITE_ORIGIN = 'https://yanovian.github.io';
+/** GitHub Pages org host, without trailing slash (yanovian.github.io). */
+export const GITHUB_PAGES_ORIGIN = 'https://yanovian.github.io';
 
-/** Repo path segment on GitHub Pages. */
+/** @deprecated Use {@link GITHUB_PAGES_ORIGIN}. */
+export const SITE_ORIGIN = GITHUB_PAGES_ORIGIN;
+
+/** Repo path segment on GitHub Pages for this marketing site. */
 export const SITE_REPO_PATH = 'chrome-ext-why-am-i-here';
 
-export const SITE_URL = `${SITE_ORIGIN}/${SITE_REPO_PATH}/`;
+/** Published site URL for a repo on {@link GITHUB_PAGES_ORIGIN}. */
+export function pagesSiteUrl(
+  repoPath: string = SITE_REPO_PATH,
+  assetPath = '',
+): string {
+  const base = `${GITHUB_PAGES_ORIGIN}/${repoPath}/`;
+  if (!assetPath) {
+    return base;
+  }
+  return new URL(assetPath.replace(/^\//, ''), base).href;
+}
+
+export const SITE_URL = pagesSiteUrl();
 
 export const SITE_NAME = 'Why Am I Here?';
 

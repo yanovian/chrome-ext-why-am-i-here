@@ -2,5 +2,11 @@
   "footerTagline": "Kaa na nia unapovinjari.",
   "footerCredit": "Imeundwa na <yanovian>Yanovian LLC</yanovian> na <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Chanzo kwenye GitHub",
-  "privacyLink": "Sera ya faragha"
+  "privacyLink": "Sera ya faragha",
+  "relatedEyebrow": "Zaidi kutoka kwetu",
+  "relatedTitle": "Viendelezi vingine vya Chrome vyetu",
+  "relatedAllProjects": "Angalia kila kitu tulichojenga →",
+  "relatedTabbyDesc": "Paka anayeishi kwenye kivinjari chako.",
+  "relatedWhyAmIHereDesc": "Kaa na lengo unapotumia kivinjari.",
+  "relatedBreadcrumbDesc": "Usipoteze unachojifunza mtandaoni."
 }

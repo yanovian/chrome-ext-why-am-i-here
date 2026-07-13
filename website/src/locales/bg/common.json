@@ -2,5 +2,11 @@
   "footerTagline": "Останете целенасочени докато сърфирате.",
   "footerCredit": "Създадено от <yanovian>Yanovian LLC</yanovian> и <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Изходен код в GitHub",
-  "privacyLink": "Политика за поверителност"
+  "privacyLink": "Политика за поверителност",
+  "relatedEyebrow": "Още от нас",
+  "relatedTitle": "Нашите други разширения за Chrome",
+  "relatedAllProjects": "Вижте всичко, което сме създали →",
+  "relatedTabbyDesc": "Котка, която живее в браузъра ви.",
+  "relatedWhyAmIHereDesc": "Останете целенасочени докато сърфирате.",
+  "relatedBreadcrumbDesc": "Никога не губете това, което научавате онлайн."
 }

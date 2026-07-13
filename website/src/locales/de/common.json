@@ -2,5 +2,11 @@
   "footerTagline": "Bleib zielgerichtet beim Surfen.",
   "footerCredit": "Erstellt von <yanovian>Yanovian LLC</yanovian> und <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Quellcode auf GitHub",
-  "privacyLink": "Datenschutzrichtlinie"
+  "privacyLink": "Datenschutzrichtlinie",
+  "relatedEyebrow": "Mehr von uns",
+  "relatedTitle": "Unsere anderen Chrome-Erweiterungen",
+  "relatedAllProjects": "Alles sehen, was wir gebaut haben →",
+  "relatedTabbyDesc": "Eine Katze, die in deinem Browser lebt.",
+  "relatedWhyAmIHereDesc": "Bleib beim Surfen bei deinem Ziel.",
+  "relatedBreadcrumbDesc": "Verliere nie, was du online lernst."
 }

@@ -2,5 +2,11 @@
   "footerTagline": "브라우징할 때 의도를 유지하세요.",
   "footerCredit": "<yanovian>Yanovian LLC</yanovian>와 <pooyan>Pooyan Razian</pooyan>이 제작했습니다.",
   "sourceOnGitHub": "GitHub 소스",
-  "privacyLink": "개인정보 처리방침"
+  "privacyLink": "개인정보 처리방침",
+  "relatedEyebrow": "더 보기",
+  "relatedTitle": "다른 Chrome 확장 프로그램",
+  "relatedAllProjects": "우리가 만든 모든 것 보기 →",
+  "relatedTabbyDesc": "브라우저에 사는 고양이.",
+  "relatedWhyAmIHereDesc": "브라우징할 때 의도를 유지하세요.",
+  "relatedBreadcrumbDesc": "온라인에서 배운 것을 잃지 마세요."
 }

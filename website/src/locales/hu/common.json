@@ -2,5 +2,11 @@
   "footerTagline": "Maradj szándékos böngészés közben.",
   "footerCredit": "Készítette: <yanovian>Yanovian LLC</yanovian> és <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Forráskód a GitHubon",
-  "privacyLink": "Adatvédelmi irányelvek"
+  "privacyLink": "Adatvédelmi irányelvek",
+  "relatedEyebrow": "Több tőlünk",
+  "relatedTitle": "További Chrome-bővítményeink",
+  "relatedAllProjects": "Nézd meg mindazt, amit építettünk →",
+  "relatedTabbyDesc": "Egy macska, aki a böngésződben él.",
+  "relatedWhyAmIHereDesc": "Maradj szándékos böngészés közben.",
+  "relatedBreadcrumbDesc": "Soha ne veszítsd el, amit online tanulsz."
 }

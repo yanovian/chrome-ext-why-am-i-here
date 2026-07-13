@@ -2,5 +2,11 @@
   "footerTagline": "Forbliv bevidst mens du browser.",
   "footerCredit": "Oprettet af <yanovian>Yanovian LLC</yanovian> og <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Kilde på GitHub",
-  "privacyLink": "Privatlivspolitik"
+  "privacyLink": "Privatlivspolitik",
+  "relatedEyebrow": "Mere fra os",
+  "relatedTitle": "Vores andre Chrome-udvidelser",
+  "relatedAllProjects": "Se alt, hvad vi har bygget →",
+  "relatedTabbyDesc": "En kat, der bor i din browser.",
+  "relatedWhyAmIHereDesc": "Forbliv målrettet, mens du browser.",
+  "relatedBreadcrumbDesc": "Gå aldrig glip af det, du lærer online."
 }

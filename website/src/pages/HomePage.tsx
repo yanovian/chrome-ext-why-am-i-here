@@ -3,6 +3,7 @@ import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
 import { HowItWorks } from '@/components/HowItWorks';
 import { PrivacyStrip } from '@/components/PrivacyStrip';
+import { RelatedProducts } from '@/components/RelatedProducts';
 import { Showcase } from '@/components/Showcase';
 
 export function HomePage() {
@@ -14,6 +15,7 @@ export function HomePage() {
         <HowItWorks />
         <Showcase />
         <PrivacyStrip />
+        <RelatedProducts />
       </main>
       <Footer />
     </>

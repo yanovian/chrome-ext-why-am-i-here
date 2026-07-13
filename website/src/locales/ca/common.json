@@ -2,5 +2,11 @@
   "footerTagline": "Mantingues la intenció mentre navegues.",
   "footerCredit": "Creat per <yanovian>Yanovian LLC</yanovian> i <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Codi font a GitHub",
-  "privacyLink": "Política de privadesa"
+  "privacyLink": "Política de privadesa",
+  "relatedEyebrow": "Més de nosaltres",
+  "relatedTitle": "Les nostres altres extensions de Chrome",
+  "relatedAllProjects": "Vegeu tot el que hem creat →",
+  "relatedTabbyDesc": "Un gat que viu al teu navegador.",
+  "relatedWhyAmIHereDesc": "Mantén la intenció mentre navegues.",
+  "relatedBreadcrumbDesc": "No perdis mai el que aprens en línia."
 }

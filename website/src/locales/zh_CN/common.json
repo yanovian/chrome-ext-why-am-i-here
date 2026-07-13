@@ -2,5 +2,11 @@
   "footerTagline": "有意识地浏览。",
   "footerCredit": "由 <yanovian>Yanovian LLC</yanovian> 和 <pooyan>Pooyan Razian</pooyan> 创建。",
   "sourceOnGitHub": "GitHub 源码",
-  "privacyLink": "隐私政策"
+  "privacyLink": "隐私政策",
+  "relatedEyebrow": "更多作品",
+  "relatedTitle": "我们的其他 Chrome 扩展",
+  "relatedAllProjects": "查看我们打造的一切 →",
+  "relatedTabbyDesc": "住在浏览器里的小猫。",
+  "relatedWhyAmIHereDesc": "浏览时保持专注。",
+  "relatedBreadcrumbDesc": "永不丢失在线学到的内容。"
 }
