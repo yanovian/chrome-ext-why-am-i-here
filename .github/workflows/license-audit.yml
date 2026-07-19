@@ -1,0 +1,28 @@
+# Copy this file into your repo at .github/workflows/license-audit.yml.
+#
+# No token setup needed: the default GITHUB_TOKEN below works as long as these permissions
+# are granted. Note that GitHub always gives GITHUB_TOKEN read-only access on pull requests
+# from forks, regardless of these permissions, so the comment step is silently skipped for
+# fork PRs unless you switch the trigger to pull_request_target (see the README for the
+# tradeoffs of doing that).
+name: License Audit
+
+on: pull_request
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: yanovian/open-license-auditor@v1
+        with:
+          config-path: .github/license-audit.yml
+          severity-filter: both
+          fail-on: critical
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
