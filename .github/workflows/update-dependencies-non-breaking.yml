@@ -1,0 +1,33 @@
+name: Update Dependencies (non-breaking)
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # every Monday at 02:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Update dependencies
+        id: update
+        uses: yanovian/update-dependencies-action@v1
+        with:
+          update-strategy: non-breaking
+          create-pull-request: true
+          github-token: ${{ secrets.PAT_TOKEN }}
