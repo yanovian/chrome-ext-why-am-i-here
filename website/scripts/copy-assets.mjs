@@ -17,6 +17,7 @@ const staticAssets = [
   ['robots.txt', 'robots.txt'],
   ['sitemap.xml', 'sitemap.xml'],
   ['og-image.png', 'og-image.png'],
+  ['googlef48c50e4269d9151.html', 'googlef48c50e4269d9151.html'],
 ];
 
 mkdirSync(join(outPublic, 'og'), { recursive: true });
