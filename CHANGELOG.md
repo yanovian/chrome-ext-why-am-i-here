@@ -2,6 +2,10 @@
 
 Updates for people who use Why Am I Here? Newest first.
 
+## 1.3.1 [unreleased]
+
+- Dependencies updated
+
 ## 1.3.0
 
 - **Getting-started tutorial** — step-by-step guide for setting a goal, browsing, and responding to nudges.
