@@ -37,8 +37,7 @@ jobs:
           cache-dependency-path: website/pnpm-lock.yaml
 
       - name: Install website dependencies
-        working-directory: website
-        run: pnpm install --frozen-lockfile
+        run: make website-prepare
 
       - name: Build website
         working-directory: website
