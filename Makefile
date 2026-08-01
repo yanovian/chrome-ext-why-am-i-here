@@ -1,6 +1,6 @@
 .PHONY: help install prepare dev dev-firefox build build-firefox \
 	zip zip-firefox icons test test-watch typecheck check package clean \
-	website-install website-dev website-build website-preview website-clean \
+	website-prepare website-install website-dev website-build website-preview website-clean \
 	website-lint-i18n website-lint-i18n-fix website-og-images \
 	release-patch release-minor release-major
 
@@ -55,6 +55,9 @@ package: zip zip-firefox ## Build and zip for Chrome and Firefox
 
 clean: ## Remove build output
 	rm -rf .output
+
+website-prepare: ## Reproducible install for CI (website/, honors the lockfile)
+	cd $(WEBSITE) && $(PNPM) install --frozen-lockfile
 
 website-install: ## Install marketing site dependencies (website/)
 	cd $(WEBSITE) && $(PNPM) install
