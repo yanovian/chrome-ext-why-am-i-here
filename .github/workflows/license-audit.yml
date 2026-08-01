@@ -7,7 +7,9 @@
 # tradeoffs of doing that).
 name: License Audit
 
-on: pull_request
+on:
+  pull_request:
+    branches: [master]
 
 permissions:
   pull-requests: write
