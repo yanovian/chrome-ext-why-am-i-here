@@ -120,6 +120,9 @@ export function SiteHead() {
             url: SITE_URL,
             inLanguage: htmlLang,
           }),
+          // Unhead 3.3 requires aggregateRating or review (Google rich results).
+          // Tabby has no public ratings to publish; keep free-app markup without inventing any.
+          // @ts-expect-error -- SoftwareApplication without fabricated ratings
           defineSoftwareApp({
             name: SITE_NAME,
             applicationCategory: 'BrowserApplication',
